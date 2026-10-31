@@ -1,0 +1,508 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#353433">
+<title>TDP results 2025/26</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#353433; --raise:#403f3d; --line:#504e4b; --text:#F5EFE4; --muted:#ABA69C;
+  --gold:#E7C566; --lilac:#BBA9FF; --purple:#7456E0; --cream:#FBEBD3; --ink:#2B2A29; --nav:#2C2B2A;
+  --hh:56px; --navh:62px;
+  color-scheme:dark;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px);background:var(--bg)}
+body{
+  margin:0;background:var(--bg);color:var(--text);
+  font:400 16px/1.35 "Barlow",system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  -webkit-text-size-adjust:100%;
+  padding-bottom:calc(var(--navh) + 12px);
+}
+body::before{content:"";position:fixed;inset:0 0 auto 0;height:env(safe-area-inset-top,0px);background:var(--bg);z-index:30}
+button{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--gold);outline-offset:2px;border-radius:4px}
+
+.wrap{max-width:720px;margin:0 auto;padding:0 12px}
+
+/* top bar */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;height:var(--hh);background:var(--bg)}
+.top .wrap{height:100%;display:flex;align-items:center;justify-content:space-between}
+.logo{
+  font-weight:900;font-size:32px;line-height:1;letter-spacing:-.5px;color:var(--gold);
+  text-shadow:1px 1px 0 #1d1c1b,2px 2px 0 #1d1c1b,3px 3px 0 #1d1c1b;
+}
+.status{display:flex;flex-direction:column;align-items:flex-end;font-size:13px;color:var(--muted);line-height:1.25}
+.status strong{color:var(--text);font-weight:600;font-size:14px}
+
+/* page heads */
+h1{margin:6px 0 2px;font-size:24px;line-height:1.2;font-weight:700}
+.lede{margin:0 0 12px;color:var(--muted);font-size:14px}
+.note{margin:10px 0 0;color:var(--muted);font-size:13px}
+.note + .note{margin-top:4px}
+
+/* chips + segmented */
+.chips{display:flex;gap:6px;overflow-x:auto;padding:2px 0 8px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{
+  flex:0 0 auto;min-height:38px;padding:6px 14px;border-radius:999px;cursor:pointer;
+  border:1px solid var(--line);background:transparent;font-weight:600;font-size:14px;color:var(--text);
+}
+.chip[aria-pressed="true"]{background:var(--cream);border-color:var(--cream);color:var(--ink)}
+.seg{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;padding:3px;margin:8px 0 12px;background:var(--raise);border-radius:12px}
+.seg button{
+  min-height:40px;border:0;border-radius:9px;background:transparent;cursor:pointer;
+  font-weight:600;font-size:14px;color:var(--muted);
+}
+.seg button[aria-selected="true"]{background:var(--cream);color:var(--ink)}
+
+/* tables */
+table{width:100%;border-collapse:collapse;table-layout:fixed}
+thead th{
+  position:sticky;top:calc(env(safe-area-inset-top,0px) + var(--hh));z-index:5;background:var(--bg);
+  border-bottom:1px solid var(--line);padding:0;font-weight:600;font-size:13px;color:var(--muted);
+}
+th.num,td.num{text-align:right}
+th.txt,td.txt{text-align:left}
+.sort{
+  display:inline-flex;align-items:center;gap:4px;min-height:40px;padding:0 0 0 2px;border:0;background:none;
+  cursor:pointer;font-weight:600;font-size:13px;color:var(--muted);
+}
+th.num .sort{justify-content:flex-end;width:100%}
+.sort.on{color:var(--gold)}
+.arr{width:0;height:0;border-left:4px solid transparent;border-right:4px solid transparent;opacity:0}
+.arr.desc{border-top:5px solid currentColor;opacity:1}
+.arr.asc{border-bottom:5px solid currentColor;opacity:1}
+.plain{display:block;min-height:40px;line-height:40px;font-weight:600;font-size:13px;color:var(--muted);text-align:center}
+td{padding:0;border-bottom:1px solid var(--line);font-size:15px;font-variant-numeric:tabular-nums;vertical-align:middle}
+td.num{padding-left:4px}
+td.ov{font-weight:700}
+td.hi{color:var(--gold);font-weight:700}
+td.lo{color:var(--lilac)}
+td.pos{color:var(--gold)}
+td.neg{color:var(--lilac)}
+tr.few td{color:var(--muted)}
+tr.few td.hi,tr.few td.lo{color:var(--muted);font-weight:400}
+tr.pending td{color:var(--muted)}
+
+.rk{
+  width:24px;height:24px;border-radius:50%;background:var(--purple);color:#fff;
+  display:grid;place-items:center;font-weight:700;font-size:13px;font-variant-numeric:tabular-nums;
+}
+.rk.none{background:transparent;border:1.5px dashed var(--muted);color:var(--muted);font-weight:500}
+.nmb{
+  display:block;width:100%;padding:11px 6px 11px 0;border:0;background:none;text-align:left;cursor:pointer;
+  font-weight:600;font-size:15px;line-height:1.25;
+}
+tr.pending .nmb{font-weight:500}
+.who{padding:9px 6px 9px 0}
+.who b{display:block;font-weight:600;font-size:15px;line-height:1.25}
+.who small{display:block;font-size:12px;color:var(--muted);line-height:1.3}
+.dag{color:var(--gold);font-size:11px;margin-left:1px}
+tr.row{cursor:pointer}
+tr.open td{border-bottom-color:transparent}
+td.detail{padding:4px 0 14px;background:transparent}
+.dbox{background:var(--raise);border-radius:10px;padding:12px}
+.dbox p{margin:0 0 10px;font-size:13px;color:var(--muted)}
+.rcs{display:flex;flex-wrap:wrap;gap:6px}
+.rc{
+  display:inline-flex;align-items:baseline;gap:8px;padding:5px 10px;border-radius:8px;
+  background:var(--bg);border:1px solid var(--line);font-size:14px;font-variant-numeric:tabular-nums;
+}
+.rc b{font-weight:600}
+.rc span{color:var(--muted);letter-spacing:.06em}
+
+/* attendance strip */
+.strip{display:inline-flex;gap:4px;align-items:flex-end;vertical-align:middle}
+.sg{
+  display:block;width:14px;height:24px;border-radius:4px;
+  background:linear-gradient(to top,var(--gold) var(--f,0%),var(--raise) var(--f,0%));
+}
+.sg.ghost{background:transparent;border:1.5px dashed var(--line)}
+.legend{display:flex;flex-wrap:wrap;gap:2px 14px;margin:10px 0 0;color:var(--muted);font-size:13px}
+
+/* bottom nav */
+.bar{
+  position:fixed;left:0;right:0;bottom:0;z-index:25;background:var(--nav);border-top:1px solid var(--line);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+.bar-in{max-width:720px;margin:0 auto;height:var(--navh);display:grid;grid-template-columns:1fr 1fr}
+.bar button{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;border:0;background:none;
+  cursor:pointer;color:var(--muted);font-weight:500;font-size:13px;
+}
+.bar button[aria-current="page"]{color:var(--gold)}
+.bar svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+
+@media (prefers-reduced-motion:no-preference){
+  .chip,.seg button,.bar button{transition:background-color .15s,color .15s}
+}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <div class="logo" aria-label="TDP">TDP</div>
+    <div class="status"><span>Season 2025/26</span><strong id="progress"></strong></div>
+  </div>
+</header>
+
+<main id="app" class="wrap" aria-live="polite"></main>
+
+<nav class="bar" aria-label="Main">
+  <div class="bar-in">
+    <button type="button" data-nav="breweries" id="nav-breweries">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8h10v10a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V8z"/><path d="M15 10h2.5a2 2 0 0 1 2 2v1.5a2 2 0 0 1-2 2H15"/><path d="M8 4.5C8 3.7 8.6 3 9.5 3S11 3.7 11 4.5"/></svg>
+      <span>Breweries</span>
+    </button>
+    <button type="button" data-nav="people" id="nav-people">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c0-3.9 3.1-6 7-6s7 2.1 7 6"/></svg>
+      <span>People</span>
+    </button>
+  </div>
+</nav>
+
+<script>
+(function(){
+'use strict';
+
+/* ===================== DATA (update this block after each stop) =====================
+   ratings: person -> [beer, service, genius loci], each 0..5
+   A brewery with empty ratings is shown as "not rated yet".
+   ==================================================================================== */
+const STAGES=[
+  {id:1,label:'Oct 2025'},
+  {id:2,label:'Apr 2026'},
+  {id:3,label:'Sep 2026'},
+  {id:4,label:'Oct 31, 2026'}
+];
+const PEOPLE=[
+  {name:'Ines'},{name:'Milan'},{name:'Tim'},{name:'Jakup'},{name:'Filip'},
+  {name:'Wizard'},{name:'Matouš'},{name:'Zbynďa'},{name:'Elton'},{name:'Martin'},
+  {name:'Diogo'},{name:'Dani'},{name:'Gokul'},{name:'Sridhar'}
+];
+const BREWERIES=[
+  {id:"b1",name:"Straßenbräu",stage:1,stop:1,ratings:{"Ines":[5,3,4], "Milan":[5,4,3], "Tim":[4,4,5], "Jakup":[5,4,4], "Filip":[4,3,3], "Wizard":[5,4,3], "Matouš":[4,3,3], "Zbynďa":[4,3,3], "Elton":[4,4,3], "Martin":[5,4,4]}},
+  {id:"b2",name:"Heidenpeters",stage:1,stop:2,ratings:{"Ines":[5,3,3], "Milan":[5,3,3], "Tim":[3,3,4], "Jakup":[5,4,5], "Filip":[3,4,4], "Wizard":[4,4,3], "Matouš":[3,4,4], "Zbynďa":[3,3,4], "Elton":[4,3,2], "Martin":[3,2,3]}},
+  {id:"b3",name:"Neulich",stage:1,stop:3,ratings:{"Ines":[4,3,4], "Milan":[3,3,4], "Tim":[4,4,4], "Jakup":[4,4,5], "Filip":[4,3,4], "Wizard":[4,3,3], "Matouš":[4,4,4], "Zbynďa":[3,4,4]}},
+  {id:"b4",name:"Brauhaus Südstern",stage:1,stop:4,ratings:{"Ines":[3,4,2], "Milan":[3,2,3], "Tim":[4,4,3], "Jakup":[3,3,2], "Filip":[4,4,5], "Wizard":[4,4,4], "Matouš":[4,4,3], "Zbynďa":[4,4,4]}},
+  {id:"b5",name:"Schoppe Bräu",stage:1,stop:5,ratings:{"Ines":[2,3,4], "Milan":[3,3,3], "Tim":[4,3,5], "Jakup":[4,4,5], "Filip":[4,4,4], "Wizard":[3,3,5], "Matouš":[3,3,4], "Zbynďa":[4,4,4]}},
+  {id:"b6",name:"Berliner Berg",stage:2,stop:1,ratings:{"Ines":[4,5,5], "Milan":[5,5,5], "Tim":[4,5,4], "Diogo":[5,5,4], "Dani":[5,5,5], "Gokul":[5,5,4]}},
+  {id:"b7",name:"Schalander",stage:2,stop:2,ratings:{"Ines":[4,4,4], "Milan":[5,4,5], "Tim":[4,3,4], "Diogo":[5,3,4], "Dani":[3,4,5], "Gokul":[4,4,4]}},
+  {id:"b8",name:"Hops & Barley",stage:2,stop:3,ratings:{"Ines":[4,3,3], "Milan":[5,4,3], "Tim":[4,3,4], "Diogo":[4,3,3], "Dani":[5,4,4]}},
+  {id:"b9",name:"Protokoll",stage:2,stop:4,ratings:{"Ines":[4,3,4], "Milan":[4,3,4], "Tim":[3,3,4], "Diogo":[4,4,3], "Dani":[5,4,4]}},
+  {id:"b10",name:"Georgbräu",stage:2,stop:5,ratings:{"Ines":[3,3,3], "Milan":[4,2,3], "Tim":[4,3,2], "Diogo":[3,2,3], "Dani":[3,3,4]}},
+  {id:"b11",name:"Brauhaus Spandau",stage:3,stop:1,ratings:{"Ines":[3,2,2], "Milan":[4,2,3], "Tim":[3,2,3], "Gokul":[4,2,4], "Sridhar":[4,2,3]}},
+  {id:"b12",name:"Eschenbräu",stage:3,stop:2,ratings:{"Ines":[3,3,3], "Milan":[3,2,2], "Tim":[2,3,3], "Gokul":[3,2,3], "Sridhar":[3,2,2]}},
+  {id:"b13",name:"Vagabund Kesselhaus",stage:3,stop:3,ratings:{"Ines":[4,4,3], "Milan":[3,4,3], "Tim":[1,3,3], "Elton":[3,3,4]}},
+  {id:"b14",name:"Circus",stage:3,stop:4,ratings:{"Ines":[4,3,3], "Milan":[3,3,3], "Tim":[4,4,5], "Gokul":[4,4,4]}},
+  {id:"b15",name:"Schankhalle Pfefferberg",stage:4,stop:1,ratings:{}},
+  {id:"b16",name:"Marcus-Bräu",stage:4,stop:2,ratings:{}},
+  {id:"b17",name:"Lemke Hackescher Markt",stage:4,stop:3,ratings:{}},
+  {id:"b18",name:"BRLO Brwhouse",stage:4,stop:4,ratings:{}}
+];
+
+/* =================================== END DATA =================================== */
+
+const MIN=3;                      // fewer ratings than this = small sample
+const W=[.5,.25,.25];             // beer, service, genius loci
+const wsum=v=>W[0]*v[0]+W[1]*v[1]+W[2]*v[2];
+const mean=a=>a.reduce((x,y)=>x+y,0)/a.length;
+const f2=x=>x.toFixed(2);
+const sgn=x=>Math.abs(x)<0.005?'0.00':(x>0?'+':'\u2212')+Math.abs(x).toFixed(2);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const plural=(n,w)=>n+' '+w+(n===1?'':'s');
+const PNAMES=new Set(PEOPLE.map(p=>p.name));
+
+const state={
+  view:'breweries',ptab:'scores',stage:'all',cons:'distance',open:new Set(),
+  bsort:{key:'overall',dir:'desc'},
+  psort:{
+    scores:{key:'overall',dir:'desc'},
+    attendance:{key:'ratings',dir:'desc'},
+    consistency:{key:'overall',dir:'asc'}
+  }
+};
+
+/* ---------- calculations ---------- */
+function computeBrews(){
+  const out=BREWERIES.map(b=>{
+    const vs=Object.values(b.ratings),n=vs.length;
+    const base=Object.assign({},b,{n:n,rated:n>0,stageCount:BREWERIES.filter(x=>x.stage===b.stage).length});
+    if(!n)return base;
+    const m=[0,1,2].map(i=>mean(vs.map(v=>v[i])));
+    return Object.assign(base,{beer:m[0],svc:m[1],gl:m[2],overall:wsum(m)});
+  });
+  const rated=out.filter(b=>b.rated).sort((a,b)=>b.overall-a.overall);
+  rated.forEach((b,i)=>{b.rank=(i>0&&Math.abs(rated[i-1].overall-b.overall)<1e-9)?rated[i-1].rank:i+1});
+  return out;
+}
+function computePeople(brews){
+  const rb=brews.filter(b=>b.rated);
+  const active=new Set(rb.map(b=>b.stage));
+  return PEOPLE.map(p=>{
+    const items=[];
+    rb.forEach(b=>{const v=b.ratings[p.name];if(v)items.push({b:b,v:v})});
+    const n=items.length;
+    if(!n)return null;
+    const ref=it=>[it.b.beer,it.b.svc,it.b.gl];
+    const m=[0,1,2].map(i=>mean(items.map(it=>it.v[i])));
+    const dv=[0,1,2].map(i=>mean(items.map(it=>it.v[i]-ref(it)[i])));
+    const da=[0,1,2].map(i=>mean(items.map(it=>Math.abs(it.v[i]-ref(it)[i]))));
+    const stages=STAGES.map(st=>({
+      id:st.id,
+      total:BREWERIES.filter(x=>x.stage===st.id).length,
+      rated:items.filter(it=>it.b.stage===st.id).length,
+      active:active.has(st.id)
+    }));
+    return {
+      name:p.name,inferred:!!p.inferred,n:n,few:n<MIN,
+      overall:wsum(m),beer:m[0],svc:m[1],gl:m[2],
+      dev:{overall:mean(items.map(it=>wsum(it.v)-it.b.overall)),beer:dv[0],svc:dv[1],gl:dv[2]},
+      abs:{overall:mean(items.map(it=>Math.abs(wsum(it.v)-it.b.overall))),beer:da[0],svc:da[1],gl:da[2]},
+      stages:stages,stagesAttended:stages.filter(s=>s.rated>0).length,ratedTotal:rb.length
+    };
+  }).filter(Boolean);
+}
+
+/* ---------- sorting helpers ---------- */
+function sortRows(rows,s,get,opt){
+  opt=opt||{};
+  return rows.slice().sort((a,b)=>{
+    if(opt.few&&a.few!==b.few)return a.few?1:-1;
+    if(opt.pending&&s.key!=='name'&&a.rated!==b.rated)return a.rated?-1:1;
+    const x=get(a),y=get(b);
+    let c=typeof x==='string'?x.localeCompare(y,'de'):x-y;
+    if(c===0&&opt.tie)c=opt.tie(a,b);
+    if(c===0)c=a.name.localeCompare(b.name,'de');
+    return s.dir==='asc'?c:-c;
+  });
+}
+function setSort(s,key,defDir){
+  if(s.key===key){s.dir=s.dir==='asc'?'desc':'asc';return}
+  const was=s.key;
+  s.key=key;
+  if(key==='name')s.dir='asc';
+  else if(was==='name')s.dir=defDir;
+}
+function th(label,key,s,table,cls){
+  const on=s.key===key;
+  return '<th class="'+(cls||'num')+'" aria-sort="'+(on?(s.dir==='asc'?'ascending':'descending'):'none')+'">'+
+    '<button type="button" class="sort'+(on?' on':'')+'" data-table="'+table+'" data-sort="'+key+'">'+label+
+    '<span class="arr'+(on?' '+s.dir:'')+'"></span></button></th>';
+}
+function chips(items,isOn,attr){
+  return '<div class="chips">'+items.map(i=>
+    '<button type="button" class="chip" '+attr+'="'+i[0]+'" aria-pressed="'+(isOn(i[0])?'true':'false')+'">'+i[1]+'</button>').join('')+'</div>';
+}
+
+/* ---------- breweries ---------- */
+function detailHtml(b){
+  const st=STAGES.find(s=>s.id===b.stage);
+  const where='Stage '+b.stage+' ('+st.label+'), stop '+b.stop+' of '+b.stageCount+'.';
+  if(!b.rated)return '<div class="dbox"><p style="margin:0">'+where+' Not rated yet.</p></div>';
+  const order=PEOPLE.map(p=>p.name).concat(Object.keys(b.ratings).filter(k=>!PNAMES.has(k)));
+  const rcs=order.filter(k=>b.ratings[k]).map(k=>{
+    const v=b.ratings[k],label=PNAMES.has(k)?k:'Unattributed';
+    return '<span class="rc"><b>'+esc(label)+'</b><span>'+v[0]+' '+v[1]+' '+v[2]+'</span></span>';
+  }).join('');
+  return '<div class="dbox"><p>'+where+' '+plural(b.n,'rating')+'. Scores are beer, service, genius loci.</p><div class="rcs">'+rcs+'</div></div>';
+}
+function renderBreweries(){
+  const brews=computeBrews();
+  const rated=brews.filter(b=>b.rated);
+  const lead={};
+  ['overall','beer','svc','gl'].forEach(k=>{lead[k]=rated.length?Math.max.apply(null,rated.map(b=>b[k])):null});
+  const s=state.bsort;
+  let rows=brews.filter(b=>state.stage==='all'||b.stage===state.stage);
+  rows=sortRows(rows,s,b=>s.key==='name'?b.name:b[s.key],{pending:true});
+  const body=rows.map(b=>{
+    const open=state.open.has(b.id);
+    const cell=(k,extra)=>'<td class="num '+(extra||'')+(b.rated&&b[k]===lead[k]?' hi':'')+'">'+(b.rated?f2(b[k]):'\u2013')+'</td>';
+    return '<tr class="row'+(open?' open':'')+(b.rated?'':' pending')+'" data-brew="'+b.id+'">'+
+      '<td class="txt"><span class="rk'+(b.rated?'':' none')+'">'+(b.rated?b.rank:'\u2013')+'</span></td>'+
+      '<td class="txt"><button type="button" class="nmb" aria-expanded="'+open+'">'+esc(b.name)+'</button></td>'+
+      cell('overall','ov')+cell('beer')+cell('svc')+cell('gl')+'</tr>'+
+      (open?'<tr><td class="detail" colspan="6">'+detailHtml(b)+'</td></tr>':'');
+  }).join('');
+  const stageNote=state.stage==='all'
+    ?'Tap a brewery to see each person\u2019s scores. Gold marks the best in each column.'
+    :'Stage '+state.stage+': '+STAGES.find(x=>x.id===state.stage).label+'. Ranks are overall, across all stages.';
+  return '<h1>Breweries</h1>'+
+    '<p class="lede">Overall is 50% beer, 25% service and 25% genius loci (GL).</p>'+
+    chips([['all','All']].concat(STAGES.map(x=>[x.id,'Stage '+x.id])),v=>String(state.stage)===String(v),'data-stage')+
+    '<table><colgroup><col style="width:34px"><col><col style="width:54px"><col style="width:46px"><col style="width:46px"><col style="width:46px"></colgroup>'+
+    '<thead><tr><th class="txt"><span class="plain" style="text-align:left">#</span></th>'+
+    th('Brewery','name',s,'b','txt')+th('Overall','overall',s,'b')+th('Beer','beer',s,'b')+th('Svc','svc',s,'b')+th('GL','gl',s,'b')+
+    '</tr></thead><tbody>'+body+'</tbody></table>'+
+    '<p class="note">'+stageNote+'</p>';
+}
+
+/* ---------- people ---------- */
+function who(p){
+  return '<div class="who"><b>'+esc(p.name)+(p.inferred?'<sup class="dag">\u2020</sup>':'')+'</b><small>'+plural(p.n,'rating')+(p.few?', small sample':'')+'</small></div>';
+}
+function peopleNotes(people,showFew){
+  const notes=[];
+  if(showFew)notes.push('Grey rows have fewer than '+MIN+' ratings. They are listed last and not highlighted.');
+  if(people.some(p=>p.inferred))notes.push('\u2020 Matched to this person by column position in the sheet. The sheet has no summary for them to confirm it.');
+  const un=[];
+  BREWERIES.forEach(b=>{Object.keys(b.ratings).forEach(k=>{if(!PNAMES.has(k))un.push(b.name)})});
+  if(un.length)notes.push('Not shown here: '+plural(un.length,'rating')+' not matched to a person ('+Array.from(new Set(un)).join(', ')+'). '+(un.length===1?'It counts':'They count')+' toward the brewery score only.');
+  return notes.map(n=>'<p class="note">'+n+'</p>').join('');
+}
+function renderScores(people){
+  const s=state.psort.scores;
+  const rows=sortRows(people,s,p=>s.key==='name'?p.name:p[s.key],{few:true});
+  const el=people.filter(p=>!p.few);
+  const hi={},lo={};
+  ['overall','beer','svc','gl'].forEach(k=>{const v=el.map(p=>p[k]);hi[k]=Math.max.apply(null,v);lo[k]=Math.min.apply(null,v)});
+  const cell=(p,k,extra)=>{
+    const c=p.few?'':(p[k]===hi[k]?' hi':(p[k]===lo[k]?' lo':''));
+    return '<td class="num '+(extra||'')+c+'">'+f2(p[k])+'</td>';
+  };
+  const body=rows.map(p=>'<tr class="'+(p.few?'few':'')+'"><td class="txt">'+who(p)+'</td>'+cell(p,'overall','ov')+cell(p,'beer')+cell(p,'svc')+cell(p,'gl')+'</tr>').join('');
+  return chips([['desc','Happiest first'],['asc','Toughest first']],v=>s.dir===v,'data-dir')+
+    '<p class="lede">The average score each person gave. Tap a column to rank by beer, service or GL. Gold is the highest in a column, lilac the lowest.</p>'+
+    '<table><colgroup><col><col style="width:56px"><col style="width:50px"><col style="width:50px"><col style="width:50px"></colgroup>'+
+    '<thead><tr>'+th('Person','name',s,'ps','txt')+th('Overall','overall',s,'ps')+th('Beer','beer',s,'ps')+th('Svc','svc',s,'ps')+th('GL','gl',s,'ps')+'</tr></thead>'+
+    '<tbody>'+body+'</tbody></table>'+peopleNotes(people,true);
+}
+function strip(p){
+  const label=p.stages.filter(s=>s.active).map(s=>'Stage '+s.id+': '+s.rated+' of '+s.total).join('; ');
+  return '<span class="strip" role="img" aria-label="'+label+'">'+p.stages.map(s=>{
+    if(!s.active)return '<i class="sg ghost"></i>';
+    return '<i class="sg" style="--f:'+Math.round(100*s.rated/s.total)+'%"></i>';
+  }).join('')+'</span>';
+}
+function renderAttendance(people){
+  const s=state.psort.attendance;
+  const get=p=>s.key==='name'?p.name:(s.key==='stages'?p.stagesAttended:p.n);
+  const tie=(a,b)=>s.key==='stages'?a.n-b.n:a.stagesAttended-b.stagesAttended;
+  const rows=sortRows(people,s,get,{tie:tie});
+  const total=people.length?people[0].ratedTotal:0;
+  const body=rows.map(p=>'<tr><td class="txt"><div class="who"><b>'+esc(p.name)+(p.inferred?'<sup class="dag">\u2020</sup>':'')+'</b></div></td>'+
+    '<td class="num" style="text-align:center">'+strip(p)+'</td>'+
+    '<td class="num">'+p.stagesAttended+'/'+STAGES.filter(st=>p.stages[st.id-1].active).length+'</td>'+
+    '<td class="num ov">'+p.n+'<span style="color:var(--muted);font-weight:400">/'+total+'</span></td></tr>').join('');
+  const anyActive=id=>people.some(p=>p.stages[id-1].active);
+  const legend=STAGES.map(st=>'<span>Stage '+st.id+': '+st.label+(anyActive(st.id)?'':' (not rated yet)')+'</span>').join('');
+  return '<p class="lede">Who shows up, and how often. Bars are the four stages in order, filled by the share of that stage\u2019s breweries the person rated.</p>'+
+    '<table><colgroup><col><col style="width:92px"><col style="width:54px"><col style="width:62px"></colgroup>'+
+    '<thead><tr>'+th('Person','name',s,'pa','txt')+'<th><span class="plain">By stage</span></th>'+th('Stages','stages',s,'pa')+th('Rated','ratings',s,'pa')+'</tr></thead>'+
+    '<tbody>'+body+'</tbody></table><div class="legend">'+legend+'</div>'+peopleNotes(people,false);
+}
+function renderConsistency(people){
+  const s=state.psort.consistency,metric=state.cons;
+  const val=(p,k)=>metric==='distance'?p.abs[k]:p.dev[k];
+  const rows=sortRows(people,s,p=>s.key==='name'?p.name:val(p,s.key),{few:true});
+  const el=people.filter(p=>!p.few);
+  const hi={},lo={};
+  ['overall','beer','svc','gl'].forEach(k=>{const v=el.map(p=>val(p,k));hi[k]=Math.max.apply(null,v);lo[k]=Math.min.apply(null,v)});
+  const cell=(p,k,extra)=>{
+    const v=val(p,k);
+    if(metric==='distance'){
+      const c=p.few?'':(v===lo[k]?' hi':(v===hi[k]?' lo':''));
+      return '<td class="num '+(extra||'')+c+'">'+f2(v)+'</td>';
+    }
+    const c=p.few||Math.abs(v)<0.005?'':(v>0?' pos':' neg');
+    return '<td class="num '+(extra||'')+c+'">'+sgn(v)+'</td>';
+  };
+  const body=rows.map(p=>'<tr class="'+(p.few?'few':'')+'"><td class="txt">'+who(p)+'</td>'+cell(p,'overall','ov')+cell(p,'beer')+cell(p,'svc')+cell(p,'gl')+'</tr>').join('');
+  const desc=metric==='distance'
+    ?'How far a person\u2019s scores sit from the group average for each brewery, on average. Lower means closer to the group. Gold is the closest in a column, lilac the furthest.'
+    :'Whether a person scores above (+) or below (\u2212) the group average for the same brewery. Gold leans generous, lilac leans tough.';
+  return chips([['distance','Distance'],['lean','Lean']],v=>metric===v,'data-cons')+
+    '<p class="lede">'+desc+'</p>'+
+    '<table><colgroup><col><col style="width:56px"><col style="width:50px"><col style="width:50px"><col style="width:50px"></colgroup>'+
+    '<thead><tr>'+th('Person','name',s,'pc','txt')+th('Overall','overall',s,'pc')+th('Beer','beer',s,'pc')+th('Svc','svc',s,'pc')+th('GL','gl',s,'pc')+'</tr></thead>'+
+    '<tbody>'+body+'</tbody></table>'+peopleNotes(people,true);
+}
+function renderPeople(){
+  const people=computePeople(computeBrews());
+  const tabs=[['scores','Scores'],['attendance','Attendance'],['consistency','Consistency']];
+  const seg='<div class="seg" role="tablist" aria-label="People views">'+tabs.map(t=>
+    '<button type="button" role="tab" data-ptab="'+t[0]+'" aria-selected="'+(state.ptab===t[0])+'">'+t[1]+'</button>').join('')+'</div>';
+  let inner;
+  if(!people.length)inner='<p class="lede">No ratings yet.</p>';
+  else if(state.ptab==='attendance')inner=renderAttendance(people);
+  else if(state.ptab==='consistency')inner=renderConsistency(people);
+  else inner=renderScores(people);
+  return '<h1>People</h1>'+seg+inner;
+}
+
+/* ---------- shell ---------- */
+function render(){
+  document.getElementById('app').innerHTML=state.view==='breweries'?renderBreweries():renderPeople();
+  const rated=BREWERIES.filter(b=>Object.keys(b.ratings).length>0).length;
+  document.getElementById('progress').textContent=rated+' of '+BREWERIES.length+' rated';
+  const nb=document.getElementById('nav-breweries'),np=document.getElementById('nav-people');
+  if(state.view==='breweries'){nb.setAttribute('aria-current','page');np.removeAttribute('aria-current')}
+  else{np.setAttribute('aria-current','page');nb.removeAttribute('aria-current')}
+}
+const PTABS=['scores','attendance','consistency'];
+function readHash(){
+  const h=location.hash.slice(1);
+  if(h.indexOf('people')===0){
+    state.view='people';
+    const t=h.slice(7);
+    if(PTABS.indexOf(t)>-1)state.ptab=t;
+  }else state.view='breweries';
+}
+function go(name){
+  if(location.hash.slice(1)===name){readHash();render();window.scrollTo(0,0)}
+  else location.hash=name;
+}
+window.addEventListener('hashchange',()=>{readHash();render();window.scrollTo(0,0)});
+
+document.addEventListener('click',e=>{
+  const t=e.target;
+  let el;
+  if((el=t.closest('[data-nav]'))){
+    const v=el.getAttribute('data-nav');
+    go(v==='people'?'people-'+state.ptab:'breweries');return;
+  }
+  if((el=t.closest('[data-ptab]'))){go('people-'+el.getAttribute('data-ptab'));return}
+  if((el=t.closest('[data-stage]'))){
+    const v=el.getAttribute('data-stage');
+    state.stage=v==='all'?'all':Number(v);render();return;
+  }
+  if((el=t.closest('[data-dir]'))){
+    const s=state.psort.scores;
+    if(s.key==='name')s.key='overall';
+    s.dir=el.getAttribute('data-dir');render();return;
+  }
+  if((el=t.closest('[data-cons]'))){
+    state.cons=el.getAttribute('data-cons');
+    state.psort.consistency={key:'overall',dir:state.cons==='distance'?'asc':'desc'};
+    render();return;
+  }
+  if((el=t.closest('[data-sort]'))){
+    const tb=el.getAttribute('data-table'),key=el.getAttribute('data-sort');
+    if(tb==='b')setSort(state.bsort,key,'desc');
+    else if(tb==='ps')setSort(state.psort.scores,key,'desc');
+    else if(tb==='pa')setSort(state.psort.attendance,key,'desc');
+    else if(tb==='pc')setSort(state.psort.consistency,key,state.cons==='distance'?'asc':'desc');
+    render();return;
+  }
+  if((el=t.closest('tr[data-brew]'))){
+    const id=el.getAttribute('data-brew');
+    if(state.open.has(id))state.open.delete(id);else state.open.add(id);
+    render();return;
+  }
+});
+
+readHash();
+render();
+})();
+</script>
+</body>
+</html>
