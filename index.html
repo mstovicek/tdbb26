@@ -46,6 +46,7 @@ button{font:inherit;color:inherit}
 /* page heads */
 h1{margin:6px 0 2px;font-size:24px;line-height:1.2;font-weight:700}
 .lede{margin:0 0 12px;color:var(--muted);font-size:14px}
+.lede b{color:var(--text);font-weight:600}
 .note{margin:10px 0 0;color:var(--muted);font-size:13px}
 .note + .note{margin-top:4px}
 
@@ -57,10 +58,10 @@ h1{margin:6px 0 2px;font-size:24px;line-height:1.2;font-weight:700}
   border:1px solid var(--line);background:transparent;font-weight:600;font-size:14px;color:var(--text);
 }
 .chip[aria-pressed="true"]{background:var(--cream);border-color:var(--cream);color:var(--ink)}
-.seg{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;padding:3px;margin:8px 0 12px;background:var(--raise);border-radius:12px}
+.seg{display:grid;grid-template-columns:repeat(4,1fr);gap:2px;padding:3px;margin:8px 0 12px;background:var(--raise);border-radius:12px}
 .seg button{
-  min-height:40px;border:0;border-radius:9px;background:transparent;cursor:pointer;
-  font-weight:600;font-size:14px;color:var(--muted);
+  min-height:40px;border:0;border-radius:9px;background:transparent;cursor:pointer;padding:0 2px;
+  font-weight:600;font-size:13px;color:var(--muted);
 }
 .seg button[aria-selected="true"]{background:var(--cream);color:var(--ink)}
 
@@ -119,6 +120,11 @@ td.detail{padding:4px 0 14px;background:transparent}
 }
 .rc b{font-weight:600}
 .rc span{color:var(--muted);letter-spacing:.06em}
+
+/* favourites */
+.fav{padding:9px 6px 9px 0}
+.fav b{display:block;font-weight:600;font-size:15px;line-height:1.25}
+.fav small{display:block;margin-top:2px;font-size:12px;line-height:1.3;color:var(--muted)}
 
 /* attendance strip */
 .strip{display:inline-flex;gap:4px;align-items:flex-end;vertical-align:middle}
@@ -302,7 +308,8 @@ function computePeople(brews){
       overall:wsum(m),beer:m[0],svc:m[1],gl:m[2],
       dev:{overall:mean(items.map(it=>wsum(it.v)-it.b.overall)),beer:dv[0],svc:dv[1],gl:dv[2]},
       abs:{overall:mean(items.map(it=>Math.abs(wsum(it.v)-it.b.overall))),beer:da[0],svc:da[1],gl:da[2]},
-      stages:stages,stagesAttended:stages.filter(s=>s.rated>0).length,ratedTotal:rb.length
+      stages:stages,stagesAttended:stages.filter(s=>s.rated>0).length,ratedTotal:rb.length,
+      picks:items.map(it=>({b:it.b,s:wsum(it.v),beer:it.v[0]})).sort((x,y)=>y.s-x.s||y.beer-x.beer||x.b.rank-y.b.rank)
     };
   }).filter(Boolean);
 }
@@ -460,13 +467,42 @@ function renderConsistency(people){
     '<thead><tr>'+th('Person','name',s,'pc','txt')+th('Overall','overall',s,'pc')+th('Beer','beer',s,'pc')+th('Svc','svc',s,'pc')+th('GL','gl',s,'pc')+'</tr></thead>'+
     '<tbody>'+body+'</tbody></table>'+peopleNotes(people,true);
 }
+function renderFavourites(people){
+  const rows=people.slice().sort((a,b)=>(a.few-b.few)||(b.n-a.n)||a.name.localeCompare(b.name,'de'));
+  const top=p=>p.picks.filter(x=>x.s===p.picks[0].s&&x.beer===p.picks[0].beer);
+  const el=people.filter(p=>!p.few);
+  const tally={};
+  el.forEach(p=>top(p).forEach(x=>{
+    if(!tally[x.b.id])tally[x.b.id]={b:x.b,k:0};
+    tally[x.b.id].k++;
+  }));
+  const list=Object.keys(tally).map(k=>tally[k]).sort((a,b)=>b.k-a.k);
+  let line='';
+  if(list.length){
+    const mx=list[0].k,lead=list.filter(x=>x.k===mx).map(x=>esc(x.b.name));
+    line='<p class="lede"><b>'+lead.join(' and ')+'</b> '+(lead.length>1?'are tied as the most popular favourite, each picked by ':'is the most popular favourite, picked by ')+mx+' of '+el.length+' people.</p>';
+  }
+  const body=rows.map(p=>{
+    const t=top(p),rest=p.picks.slice(t.length,t.length+2);
+    const names=t.map(x=>'<b>'+esc(x.b.name)+'</b>').join('');
+    const then=rest.length?'<small>Then '+rest.map(x=>esc(x.b.name)+' '+f2(x.s)).join(', ')+'</small>':'';
+    return '<tr class="'+(p.few?'few':'')+'"><td class="txt">'+who(p)+'</td><td class="txt"><div class="fav">'+names+then+'</div></td><td class="num ov'+(p.few?'':' hi')+'">'+f2(t[0].s)+'</td></tr>';
+  }).join('');
+  const plain=(l,a)=>'<th class="'+(a==='r'?'num':'txt')+'"><span class="plain" style="text-align:'+(a==='r'?'right':'left')+'">'+l+'</span></th>';
+  return line+
+    '<table><colgroup><col style="width:100px"><col><col style="width:54px"></colgroup>'+
+    '<thead><tr>'+plain('Person')+plain('Favourite')+plain('Score','r')+'</tr></thead><tbody>'+body+'</tbody></table>'+
+    '<p class="note">Each person\u2019s highest-scoring brewery, using their own beer, service and GL scores (50/25/25). A tie goes to the higher beer score, and a full tie shows both. Score is the overall they gave it. The tally counts people with at least '+MIN+' ratings, and a tie counts for each brewery.</p>'+
+    peopleNotes(people,true);
+}
 function renderPeople(){
   const people=computePeople(computeBrews());
-  const tabs=[['scores','Scores'],['attendance','Attendance'],['consistency','Consistency']];
+  const tabs=[['scores','Scores'],['favourites','Favourites'],['attendance','Attendance'],['consistency','Consistency']];
   const seg='<div class="seg" role="tablist" aria-label="People views">'+tabs.map(t=>
     '<button type="button" role="tab" data-ptab="'+t[0]+'" aria-selected="'+(state.ptab===t[0])+'">'+t[1]+'</button>').join('')+'</div>';
   let inner;
   if(!people.length)inner='<p class="lede">No ratings yet.</p>';
+  else if(state.ptab==='favourites')inner=renderFavourites(people);
   else if(state.ptab==='attendance')inner=renderAttendance(people);
   else if(state.ptab==='consistency')inner=renderConsistency(people);
   else inner=renderScores(people);
@@ -518,7 +554,7 @@ function render(){
   document.getElementById('progress').textContent=rated+' of '+BREWERIES.length+' rated';
   ['today','breweries','people'].forEach(v=>{const n=document.getElementById('nav-'+v);if(v===state.view)n.setAttribute('aria-current','page');else n.removeAttribute('aria-current')});
 }
-const PTABS=['scores','attendance','consistency'];
+const PTABS=['scores','favourites','attendance','consistency'];
 function readHash(){
   const h=location.hash.slice(1);
   if(h.indexOf('people')===0){
