@@ -129,12 +129,36 @@ td.detail{padding:4px 0 14px;background:transparent}
 .sg.ghost{background:transparent;border:1.5px dashed var(--line)}
 .legend{display:flex;flex-wrap:wrap;gap:2px 14px;margin:10px 0 0;color:var(--muted);font-size:13px}
 
+/* today */
+.tour{list-style:none;margin:8px 0 0;padding:0}
+.stop{position:relative;display:grid;grid-template-columns:44px 1fr;column-gap:14px;padding-bottom:26px}
+.stop::before{content:"";position:absolute;left:21px;top:52px;bottom:4px;border-left:2px dashed var(--line)}
+.stop:last-child{padding-bottom:6px}
+.stop:last-child::before{display:none}
+.big{width:44px;height:44px;border-radius:50%;background:var(--purple);color:#fff;display:grid;place-items:center;font-weight:700;font-size:20px;font-variant-numeric:tabular-nums}
+.stop.now .big{box-shadow:0 0 0 3px var(--bg),0 0 0 5px var(--gold)}
+.stop.done .big{background:var(--raise);color:var(--muted)}
+.stop.done h2,.stop.done .when{opacity:.65}
+.when{display:flex;align-items:center;gap:8px;min-height:22px;color:var(--gold);font-size:14px;font-weight:500;font-variant-numeric:tabular-nums}
+.stop h2{margin:1px 0 8px;font-size:19px;line-height:1.2;font-weight:700}
+.tag{padding:1px 9px;border-radius:999px;font-size:12px;font-weight:600;border:1px solid var(--muted);color:var(--muted)}
+.tag.now{background:var(--cream);border-color:var(--cream);color:var(--ink)}
+.tag.next{border-color:var(--gold);color:var(--gold)}
+.srow{display:flex;align-items:center;flex-wrap:wrap;gap:6px 10px;font-size:14px}
+.star{width:18px;height:18px;fill:var(--gold)}
+.rt{color:var(--muted)}
+.sc{color:var(--text);font-weight:700;font-variant-numeric:tabular-nums}
+.cnt{color:var(--muted);font-size:13px}
+.btn{margin-left:auto;min-height:38px;padding:7px 14px;border:0;border-radius:8px;background:var(--cream);color:var(--ink);font-weight:600;font-size:14px;cursor:pointer}
+.snote{margin-top:8px;font-size:13px}
+.travel{margin-top:10px;font-size:13px;color:var(--muted)}
+
 /* bottom nav */
 .bar{
   position:fixed;left:0;right:0;bottom:0;z-index:25;background:var(--nav);border-top:1px solid var(--line);
   padding-bottom:env(safe-area-inset-bottom,0px);
 }
-.bar-in{max-width:720px;margin:0 auto;height:var(--navh);display:grid;grid-template-columns:1fr 1fr}
+.bar-in{max-width:720px;margin:0 auto;height:var(--navh);display:grid;grid-template-columns:repeat(3,1fr)}
 .bar button{
   display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;border:0;background:none;
   cursor:pointer;color:var(--muted);font-weight:500;font-size:13px;
@@ -159,6 +183,10 @@ td.detail{padding:4px 0 14px;background:transparent}
 
 <nav class="bar" aria-label="Main">
   <div class="bar-in">
+    <button type="button" data-nav="today" id="nav-today">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.2 2"/></svg>
+      <span>Today</span>
+    </button>
     <button type="button" data-nav="breweries" id="nav-breweries">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8h10v10a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V8z"/><path d="M15 10h2.5a2 2 0 0 1 2 2v1.5a2 2 0 0 1-2 2H15"/><path d="M8 4.5C8 3.7 8.6 3 9.5 3S11 3.7 11 4.5"/></svg>
       <span>Breweries</span>
@@ -189,6 +217,12 @@ const PEOPLE=[
   {name:'Wizard'},{name:'Matouš'},{name:'Zbynďa'},{name:'Elton'},{name:'Martin'},
   {name:'Diogo'},{name:'Dani'},{name:'Gokul'},{name:'Sridhar'}
 ];
+const AGENDA={date:'2026-10-31',label:'Saturday, October 31',stage:4,stops:[
+  {brewery:'b15',start:'16:00',end:'17:00',travel:15},
+  {brewery:'b16',start:'17:15',end:'18:15',travel:15},
+  {brewery:'b17',start:'18:30',end:'19:30',travel:30},
+  {brewery:'b18',start:'20:00',note:'Table booked for 20:00'}
+]};
 const BREWERIES=[
   {id:"b1",name:"Straßenbräu",stage:1,stop:1,ratings:{"Ines":[5,3,4], "Milan":[5,4,3], "Tim":[4,4,5], "Jakup":[5,4,4], "Filip":[4,3,3], "Wizard":[5,4,3], "Matouš":[4,3,3], "Zbynďa":[4,3,3], "Elton":[4,4,3], "Martin":[5,4,4]}},
   {id:"b2",name:"Heidenpeters",stage:1,stop:2,ratings:{"Ines":[5,3,3], "Milan":[5,3,3], "Tim":[3,3,4], "Jakup":[5,4,5], "Filip":[3,4,4], "Wizard":[4,4,3], "Matouš":[3,4,4], "Zbynďa":[3,3,4], "Elton":[4,3,2], "Martin":[3,2,3]}},
@@ -223,7 +257,7 @@ const plural=(n,w)=>n+' '+w+(n===1?'':'s');
 const PNAMES=new Set(PEOPLE.map(p=>p.name));
 
 const state={
-  view:'breweries',ptab:'scores',stage:'all',cons:'distance',open:new Set(),
+  view:'today',ptab:'scores',stage:'all',cons:'distance',open:new Set(),focus:null,
   bsort:{key:'overall',dir:'desc'},
   psort:{
     scores:{key:'overall',dir:'desc'},
@@ -439,14 +473,50 @@ function renderPeople(){
   return '<h1>People</h1>'+seg+inner;
 }
 
+/* ---------- today ---------- */
+const pad=n=>String(n).padStart(2,'0');
+const toMin=t=>{const p=t.split(':');return Number(p[0])*60+Number(p[1])};
+function renderToday(){
+  const brews=computeBrews();
+  const byId={};
+  brews.forEach(b=>{byId[b.id]=b});
+  const d=new Date();
+  const isToday=d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())===AGENDA.date;
+  const mins=d.getHours()*60+d.getMinutes();
+  const stops=AGENDA.stops;
+  let nextSet=false;
+  const labels={now:'Now',next:'Next',done:'Done'};
+  const star='<svg class="star" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.4l-5.9 3.1 1.2-6.5L2.5 9.4l6.6-.9z"/></svg>';
+  const items=stops.map((s,i)=>{
+    const b=byId[s.brewery];
+    let status='';
+    if(isToday){
+      if(s.end&&mins>=toMin(s.end))status='done';
+      else if(mins>=toMin(s.start))status='now';
+      else if(!nextSet){status='next';nextSet=true}
+    }
+    const tag=status?'<span class="tag '+status+'">'+labels[status]+'</span>':'';
+    const stat=b.rated
+      ?'<div class="srow">'+star+'<span class="rt">Rated</span><b class="sc">'+f2(b.overall)+'</b><span class="cnt">'+plural(b.n,'rating')+'</span><button type="button" class="btn" data-goto="'+b.id+'">See scores</button></div>'
+      :'<div class="srow"><span class="rt">Not rated yet</span></div>';
+    const note=s.note?'<div class="snote">'+esc(s.note)+'</div>':'';
+    const nxt=stops[i+1];
+    const travel=(nxt&&s.travel)?'<div class="travel">'+s.travel+' min travel to '+esc(byId[nxt.brewery].name)+'</div>':'';
+    return '<li class="stop'+(status?' '+status:'')+'"><div class="big">'+(i+1)+'</div><div><div class="when">'+s.start+(s.end?'\u2013'+s.end:'')+tag+'</div><h2>'+esc(b.name)+'</h2>'+stat+note+travel+'</div></li>';
+  }).join('');
+  const ratedN=stops.filter(s=>byId[s.brewery].rated).length;
+  return '<h1>'+(isToday?'Today':'Agenda')+'</h1>'+
+    '<p class="lede">'+AGENDA.label+'. Stage '+AGENDA.stage+', the last of the season: '+stops.length+' stops, starting at '+stops[0].start+'. '+ratedN+' of '+stops.length+' rated.</p>'+
+    '<ol class="tour">'+items+'</ol>'+
+    '<p class="note">The first three stops are an hour each, with travel time in between, as planned in the schedule sheet. BRLO is open-ended.</p>';
+}
+
 /* ---------- shell ---------- */
 function render(){
-  document.getElementById('app').innerHTML=state.view==='breweries'?renderBreweries():renderPeople();
+  document.getElementById('app').innerHTML=state.view==='today'?renderToday():(state.view==='breweries'?renderBreweries():renderPeople());
   const rated=BREWERIES.filter(b=>Object.keys(b.ratings).length>0).length;
   document.getElementById('progress').textContent=rated+' of '+BREWERIES.length+' rated';
-  const nb=document.getElementById('nav-breweries'),np=document.getElementById('nav-people');
-  if(state.view==='breweries'){nb.setAttribute('aria-current','page');np.removeAttribute('aria-current')}
-  else{np.setAttribute('aria-current','page');nb.removeAttribute('aria-current')}
+  ['today','breweries','people'].forEach(v=>{const n=document.getElementById('nav-'+v);if(v===state.view)n.setAttribute('aria-current','page');else n.removeAttribute('aria-current')});
 }
 const PTABS=['scores','attendance','consistency'];
 function readHash(){
@@ -455,20 +525,34 @@ function readHash(){
     state.view='people';
     const t=h.slice(7);
     if(PTABS.indexOf(t)>-1)state.ptab=t;
-  }else state.view='breweries';
+  }else if(h==='breweries')state.view='breweries';
+  else state.view='today';
+}
+function afterNav(){
+  window.scrollTo(0,0);
+  if(state.focus){
+    const el=document.querySelector('tr[data-brew="'+state.focus+'"]');
+    if(el)el.scrollIntoView({block:'center'});
+    state.focus=null;
+  }
 }
 function go(name){
-  if(location.hash.slice(1)===name){readHash();render();window.scrollTo(0,0)}
+  if(location.hash.slice(1)===name){readHash();render();afterNav()}
   else location.hash=name;
 }
-window.addEventListener('hashchange',()=>{readHash();render();window.scrollTo(0,0)});
+window.addEventListener('hashchange',()=>{readHash();render();afterNav()});
 
 document.addEventListener('click',e=>{
   const t=e.target;
   let el;
   if((el=t.closest('[data-nav]'))){
     const v=el.getAttribute('data-nav');
-    go(v==='people'?'people-'+state.ptab:'breweries');return;
+    go(v==='people'?'people-'+state.ptab:v);return;
+  }
+  if((el=t.closest('[data-goto]'))){
+    const id=el.getAttribute('data-goto');
+    state.open.add(id);state.stage='all';state.focus=id;
+    go('breweries');return;
   }
   if((el=t.closest('[data-ptab]'))){go('people-'+el.getAttribute('data-ptab'));return}
   if((el=t.closest('[data-stage]'))){
@@ -502,6 +586,7 @@ document.addEventListener('click',e=>{
 
 readHash();
 render();
+setInterval(()=>{if(state.view==='today')render()},60000);
 })();
 </script>
 </body>
