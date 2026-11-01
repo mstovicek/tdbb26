@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="color-scheme" content="dark">
 <meta name="theme-color" content="#353433">
-<title>TDBB results 2025/26</title>
+<title>TDBB results</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700;900&display=swap" rel="stylesheet">
@@ -190,8 +190,9 @@ td.detail{padding:4px 0 14px;background:transparent}
 
 /* profiles */
 .card{display:grid;grid-template-columns:72px 1fr;gap:14px;padding:14px 0;border-bottom:1px solid var(--line)}
-.pic{width:72px;height:72px;border-radius:50%;background:linear-gradient(145deg,var(--purple),#3A2B84);display:grid;place-items:center;overflow:hidden;color:var(--cream);font-weight:900;font-size:24px;letter-spacing:.5px}
-.pic img{width:100%;height:100%;object-fit:cover;display:block}
+.pic{width:72px;height:72px;border-radius:50%;background:var(--purple);box-shadow:none;display:grid;place-items:center;overflow:hidden;color:var(--cream);font-weight:900;font-size:24px;letter-spacing:.5px}
+.pic{position:relative}
+.pic img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
 .ch{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
 .card h2{margin:0;font-size:17px;line-height:1.2;font-weight:700}
 .cr{display:flex;align-items:center;gap:4px;flex:0 0 auto;font-variant-numeric:tabular-nums}
@@ -208,6 +209,14 @@ td.detail{padding:4px 0 14px;background:transparent}
 .prog{color:var(--muted);font-size:13px;line-height:1.2;text-align:right;white-space:nowrap}
 .yrsel select{appearance:none;-webkit-appearance:none;min-height:40px;padding:6px 34px 6px 14px;border:1px solid var(--line);border-radius:999px;background:var(--bg) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5l5 5 5-5' fill='none' stroke='%23ABA69C' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat right 13px center;color:var(--text);font:600 14px/1 "Barlow",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;cursor:pointer}
 .yrsel option{background:var(--raise);color:var(--text)}
+
+/* banners and small tags */
+.banner{margin:10px 0 0;padding:10px 12px;border-radius:10px;font-size:13px;line-height:1.4}
+.banner ul{margin:6px 0 0;padding-left:18px}
+.banner.test{background:rgba(231,197,102,.14);border:1px solid var(--gold)}
+.banner.warn{background:rgba(187,169,255,.12);border:1px solid var(--lilac)}
+.tagc{display:inline-block;margin-left:6px;padding:0 8px;border:1px solid var(--muted);border-radius:999px;font-size:11px;font-weight:600;color:var(--muted);vertical-align:2px}
+.rc small{color:var(--muted);font-size:12px}
 
 /* bottom nav */
 .bar{
@@ -231,7 +240,7 @@ td.detail{padding:4px 0 14px;background:transparent}
 <header class="top">
   <div class="wrap">
     <div class="logo" aria-label="TDBB, Tour de Berlin Breweries">TDBB</div>
-    <div class="hr"><span class="prog" id="progress"></span><label class="yrsel"><select data-year aria-label="Season"><option value="all">All</option><option value="2026" selected>2025/2026</option><option value="2025">2024/2025</option></select></label></div>
+    <div class="hr"><span class="prog" id="progress"></span><label class="yrsel"><select data-year aria-label="Season"></select></label></div>
   </div>
 </header>
 
@@ -258,86 +267,156 @@ td.detail{padding:4px 0 14px;background:transparent}
   </div>
 </nav>
 
+<script type="application/json" id="tdbb-data"></script>
 <script>
 (function(){
 'use strict';
 
-/* ===================== DATA (update this block after each stop) =====================
-   ratings: person -> [beer, service, genius loci], each 0..5
-   A brewery with empty ratings is shown as "not rated yet".
-   ==================================================================================== */
-const STAGES=[
-  {id:1,label:'Oct 2025'},
-  {id:2,label:'Apr 2026'},
-  {id:3,label:'Sep 2026'},
-  {id:4,label:'Oct 31, 2026'}
-];
-const PEOPLE=[
-  {name:'Ines'},{name:'Milan'},{name:'Tim'},{name:'Jakup'},{name:'Filip'},
-  {name:'Wizard'},{name:'Matouš'},{name:'Zbynďa'},{name:'Elton'},{name:'Martin'},
-  {name:'Diogo'},{name:'Dani'},{name:'Gokul'},{name:'Sridhar'},{name:'Eva'},{name:'Lucka'},{name:'Pepa'},{name:'Jule'}
-];
-const AGENDA={date:'2026-10-31',label:'Saturday, October 31',stage:4,stops:[
-  {brewery:'b17',start:'16:00',end:'17:00',travel:15},
-  {brewery:'b16',start:'17:15',end:'18:15',travel:15},
-  {brewery:'b15',start:'18:30',end:'19:30',travel:30},
-  {brewery:'b18',start:'20:00',note:'Table booked for 20:00'}
-]};
-const PROFILES={
-  b1:{addr:'Neue Bahnhofstraße 30, 10245 Berlin',line:'A taproom with the second-best beer of the season (4.50), though there is no food, so eat first.'},
-  b2:{addr:'Eisenbahnstraße 42-43, 10997 Berlin',line:'Open from noon on Saturdays with food and a solid beer score of 3.92, closing early at 20:00.'},
-  b3:{addr:'Selchower Str. 20, 12049 Berlin',line:'Open until 03:00 on Saturdays with food and a 4.00 for atmosphere, a good place for a late stop.'},
-  b4:{addr:'Hasenheide 69, 10967 Berlin',line:'Brewery with food, open until 01:00 on Saturdays, but service can be slow so give it time.'},
-  b5:{addr:'Manteuffelstr. 53, 10999 Berlin',line:'A tiny taproom with the third-best atmosphere score (4.25) and just one couch table for 8 to 10 people.'},
-  b6:{addr:'Treptower Str. 39, Berlin',line:'Beer garden with Berliner Weisse, the top service score of the season (5.00), and you can bring your own food.'},
-  b7:{addr:'Revaler Str. 99, Haus 9, 10245 Berlin',line:'In the RAW area with flammkuchen on the menu and a strong 4.33 for atmosphere.'},
-  b8:{addr:'Wühlischstraße 22/23, 10245 Berlin',line:'Small taproom with the third-best beer of the season (4.40) and no food.'},
-  b9:{addr:'Boxhagener Str. 110, 10245 Berlin',line:'Small taproom serving four of its own beers, with no food on the menu.'},
-  b10:{addr:'Spreeufer 4, 10178 Berlin',line:'Brewery on the Spreeufer with food, open from noon to 22:00.'},
-  b11:{addr:'Neuendorfer Straße 1, 13585 Berlin',line:'Brewpub in Spandau with food from 11:00; we visited during the Christmas market, and it is best to book ahead.'},
-  b12:{addr:'Triftstraße 67, 13353 Berlin',line:'Large brewery with pretzels and flammkuchen, open until 01:00; book about two weeks ahead.'},
-  b13:{addr:'Oudenarder Str. 16-20, 13347 Berlin',line:'Brewery with food that stays open until 02:00 on Saturdays, with service as its best score (3.50).'},
-  b14:{addr:'Weinbergsweg 1a, 10119 Berlin',line:'Come for the Hoff museum and the one beer on tap; there is no food in the brewery.'},
-  b15:{addr:'Schönhauser Allee 176, 10119 Berlin',line:'Large brewpub with a beer garden, but it opens at 15:00 so there is no lunch.'},
-  b16:{addr:'Münzstraße 1-3, 10178 Berlin',line:'Reasonable prices for normal food and good service (3.67), though opinions on the beer were split.'},
-  b17:{addr:'S-Bahnbogen 143, Dircksenstraße, 10178 Berlin',line:'Large Berliner Weisse brewery in the S-Bahn arches at Hackescher Markt, with a very good beer score of 4.14 but weaker service.'},
-  b18:{addr:'Schöneberger Str. 16, 10963 Berlin',line:'Brewhouse with food, open from noon, and one of the better beers of the season (4.00); book ahead for groups.'}
-};
-const BREWERIES=[
-  {id:"b1",name:"Straßenbräu",stage:1,stop:1,ratings:{"Ines":[5,3,4], "Milan":[5,4,3], "Tim":[4,4,5], "Jakup":[5,4,4], "Filip":[4,3,3], "Wizard":[5,4,3], "Matouš":[4,3,3], "Zbynďa":[4,3,3], "Elton":[4,4,3], "Martin":[5,4,4]}},
-  {id:"b2",name:"Heidenpeters",stage:1,stop:2,ratings:{"Ines":[5,3,3], "Milan":[5,3,3], "Tim":[3,3,4], "Jakup":[5,4,5], "Filip":[3,4,4], "Wizard":[4,4,3], "Matouš":[3,4,4], "Zbynďa":[3,3,4], "Elton":[4,3,2], "Martin":[3,2,3], "Lucka":[4,3,4], "Eva":[4,3,3], "Pepa":[5,4,4]}},
-  {id:"b3",name:"Neulich",stage:1,stop:3,ratings:{"Ines":[4,3,4], "Milan":[3,3,4], "Tim":[4,4,4], "Jakup":[4,4,5], "Filip":[4,3,4], "Wizard":[4,3,3], "Matouš":[4,4,4], "Zbynďa":[3,4,4]}},
-  {id:"b4",name:"Brauhaus Südstern",stage:1,stop:4,ratings:{"Ines":[3,4,2], "Milan":[3,2,3], "Tim":[4,4,3], "Jakup":[3,3,2], "Filip":[4,4,5], "Wizard":[4,4,4], "Matouš":[4,4,3], "Zbynďa":[4,4,4]}},
-  {id:"b5",name:"Schoppe Bräu",stage:1,stop:5,ratings:{"Ines":[2,3,4], "Milan":[3,3,3], "Tim":[4,3,5], "Jakup":[4,4,5], "Filip":[4,4,4], "Wizard":[3,3,5], "Matouš":[3,3,4], "Zbynďa":[4,4,4]}},
-  {id:"b6",name:"Berliner Berg",stage:2,stop:1,ratings:{"Ines":[4,5,5], "Milan":[5,5,5], "Tim":[4,5,4], "Diogo":[5,5,4], "Dani":[5,5,5], "Gokul":[5,5,4]}},
-  {id:"b7",name:"Schalander",stage:2,stop:2,ratings:{"Ines":[4,4,4], "Milan":[5,4,5], "Tim":[4,3,4], "Diogo":[5,3,4], "Dani":[3,4,5], "Gokul":[4,4,4]}},
-  {id:"b8",name:"Hops & Barley",stage:2,stop:3,ratings:{"Ines":[4,3,3], "Milan":[5,4,3], "Tim":[4,3,4], "Diogo":[4,3,3], "Dani":[5,4,4]}},
-  {id:"b9",name:"Protokoll",stage:2,stop:4,ratings:{"Ines":[4,3,4], "Milan":[4,3,4], "Tim":[3,3,4], "Diogo":[4,4,3], "Dani":[5,4,4]}},
-  {id:"b10",name:"Georgbräu",stage:2,stop:5,ratings:{"Ines":[3,3,3], "Milan":[4,2,3], "Tim":[4,3,2], "Diogo":[3,2,3], "Dani":[3,3,4]}},
-  {id:"b11",name:"Brauhaus Spandau",stage:3,stop:1,ratings:{"Ines":[3,2,2], "Milan":[4,2,3], "Tim":[3,2,3], "Gokul":[4,2,4], "Sridhar":[4,2,3]}},
-  {id:"b12",name:"Eschenbräu",stage:3,stop:2,ratings:{"Ines":[3,3,3], "Milan":[3,2,2], "Tim":[2,3,3], "Gokul":[3,2,3], "Sridhar":[3,2,2]}},
-  {id:"b13",name:"Vagabund Kesselhaus",stage:3,stop:3,ratings:{"Ines":[4,4,3], "Milan":[3,4,3], "Tim":[1,3,3], "Elton":[3,3,4]}},
-  {id:"b14",name:"Circus",stage:3,stop:4,ratings:{"Ines":[4,3,3], "Milan":[3,3,3], "Tim":[4,4,5], "Gokul":[4,4,4]}},
-  {id:"b15",name:"Schankhalle Pfefferberg",stage:4,stop:3,ratings:{"Ines":[3,3,4], "Milan":[3,3,3], "Tim":[3,3,2], "Jakup":[4,4,3], "Filip":[3,3,2], "Eva":[2,4,2], "Lucka":[4,4,2], "Pepa":[4,4,2], "Jule":[4,4,4]}},
-  {id:"b16",name:"Marcus-Bräu",stage:4,stop:2,ratings:{"Ines":[1,3,2], "Milan":[1,3,3], "Tim":[4,4,4], "Jakup":[4,4,3], "Filip":[5,4,4], "Eva":[2,4,4], "Lucka":[3,4,4], "Pepa":[3,4,4], "Jule":[3,3,3]}},
-  {id:"b17",name:"Lemke Hackescher Markt",stage:4,stop:1,ratings:{"Ines":[4,3,3], "Milan":[4,3,3], "Filip":[3,3,3], "Jakup":[4,2,3], "Eva":[4,3,4], "Lucka":[5,3,3], "Pepa":[5,3,3]}},
-  {id:"b18",name:"BRLO Brwhouse",stage:4,stop:4,ratings:{"Ines":[5,4,3], "Milan":[4,4,4], "Tim":[4,3,2], "Jakup":[3,5,3], "Filip":[4,2,3], "Eva":[3,4,4], "Lucka":[4,3,4], "Pepa":[4,3,4], "Jule":[5,4,4]}}
-];
-
-/* =================================== END DATA =================================== */
+/* ===== Data comes from data/*.json, or from the embedded block above (test builds only) ===== */
+let DB=null;                 // loaded files: {manifest,people,breweries,seasons}
+let EMBEDDED=null;           // set when the data was embedded in this page
+const WARN=[];               // problems found while loading, shown in a banner
+let STAGES=[],PEOPLE=[],BREWERIES=[],PROFILES={},AGENDA=null;
+let SCOPE={all:false,label:'',unit:'stage'};
+let W=[.5,.25,.25];          // beer, service, genius loci (set from manifest.json)
 
 const MIN=3;                      // fewer ratings than this = small sample
-const W=[.5,.25,.25];             // beer, service, genius loci
 const wsum=v=>W[0]*v[0]+W[1]*v[1]+W[2]*v[2];
 const mean=a=>a.reduce((x,y)=>x+y,0)/a.length;
 const f2=x=>x.toFixed(2);
 const sgn=x=>Math.abs(x)<0.005?'0.00':(x>0?'+':'\u2212')+Math.abs(x).toFixed(2);
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const plural=(n,w)=>n+' '+w+(n===1?'':'s');
-const PNAMES=new Set(PEOPLE.map(p=>p.name));
+const pct=i=>Math.round(W[i]*100);
+const wtext=()=>pct(0)+'% beer, '+pct(1)+'% service and '+pct(2)+'% genius loci';
+const wslash=()=>pct(0)+'/'+pct(1)+'/'+pct(2);
+const MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const fmtDate=d=>{const p=d.split('-');return MON[+p[1]-1]+' '+(+p[2])+', '+p[0]};
+const fmtLong=d=>new Date(d+'T12:00:00Z').toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',timeZone:'UTC'});
+const isoToday=()=>{const d=new Date();return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())};
+function warn(m){if(WARN.indexOf(m)<0)WARN.push(m)}
+
+/* ---------- loading ---------- */
+async function getJSON(path){
+  const r=await fetch(path+'?t='+Date.now(),{cache:'no-store'});
+  if(!r.ok)throw new Error(path+' returned '+r.status);
+  return r.json();
+}
+async function loadData(){
+  const el=document.getElementById('tdbb-data');
+  const txt=el?el.textContent.trim():'';
+  if(txt){const d=JSON.parse(txt);EMBEDDED={builtAt:d.builtAt||''};return d}
+  const manifest=await getJSON('data/manifest.json');
+  const both=await Promise.all([getJSON('data/people.json'),getJSON('data/breweries.json')]);
+  const seasons={};
+  await Promise.all((manifest.seasons||[]).map(async id=>{
+    try{seasons[id]=await getJSON('data/seasons/'+id+'.json')}
+    catch(e){warn('Season '+id+' could not be loaded ('+e.message+'). The page shows the other seasons.')}
+  }));
+  return {manifest:manifest,people:both[0],breweries:both[1],seasons:seasons};
+}
+function showFatal(e){
+  const local=location.protocol==='file:';
+  document.getElementById('app').innerHTML='<div class="banner warn"><b>The data could not be loaded.</b><p style="margin:6px 0 0">'+
+    (local?'This page reads its data from the data folder, which browsers block when the file is opened directly. Open it from GitHub Pages, or use a test build with the data embedded.':esc(e&&e.message?e.message:String(e)))+'</p></div>';
+  document.getElementById('progress').textContent='';
+}
+
+/* ---------- model: turns the loaded files into what the views use ---------- */
+const BR=id=>(DB.breweries.breweries||{})[id];
+function entries(ratings,sid,st,where){
+  const out=[];
+  Object.keys(ratings||{}).forEach(pid=>{
+    const person=(DB.people.people||{})[pid];
+    const r=ratings[pid];
+    if(!person){warn('Season '+sid+', '+where+': unknown person "'+pid+'" was ignored.');return}
+    const v=[r&&r.beer,r&&r.service,r&&r.gl];
+    if(!v.every(x=>Number.isInteger(x)&&x>=0&&x<=5)){warn('Season '+sid+', '+where+': invalid scores for "'+pid+'" were ignored.');return}
+    out.push({p:person.name,v:v,st:st,sid:sid});
+  });
+  return out;
+}
+function validStops(stg,sid){
+  return (stg.stops||[]).filter(sp=>{
+    if(BR(sp.brewery))return true;
+    warn('Season '+sid+': unknown brewery "'+sp.brewery+'" was ignored.');return false;
+  });
+}
+function seasonIds(){return (DB.manifest.seasons||[]).filter(id=>DB.seasons[id])}
+function buildModel(year){
+  const ids=seasonIds();
+  PROFILES={};
+  Object.keys(DB.breweries.breweries||{}).forEach(id=>{
+    const b=DB.breweries.breweries[id];
+    PROFILES[id]={addr:b.address||'',line:b.highlight||'',status:b.status||'open'};
+  });
+  STAGES=[];BREWERIES=[];
+  if(year!=='all'&&DB.seasons[year]){
+    const s=DB.seasons[year];
+    SCOPE={all:false,label:s.label,unit:'stage'};
+    (s.stages||[]).forEach((stg,i)=>{
+      const stops=validStops(stg,year);
+      let rs=0;
+      stops.forEach((sp,j)=>{
+        const ents=entries(sp.ratings,year,i+1,sp.brewery);
+        if(ents.length)rs++;
+        BREWERIES.push({id:sp.brewery,name:BR(sp.brewery).name,stage:i+1,stop:j+1,stageCount:stops.length,ratings:ents,seasons:[year]});
+      });
+      STAGES.push({id:i+1,label:fmtDate(stg.date),total:stops.length,ratedStops:rs});
+    });
+  }else{
+    SCOPE={all:true,label:'All seasons',unit:'season'};
+    const map={};
+    ids.forEach((sid,si)=>{
+      let total=0,rs=0;
+      (DB.seasons[sid].stages||[]).forEach(stg=>validStops(stg,sid).forEach(sp=>{
+        total++;
+        const ents=entries(sp.ratings,sid,si+1,sp.brewery);
+        if(ents.length)rs++;
+        let b=map[sp.brewery];
+        if(!b){b=map[sp.brewery]={id:sp.brewery,name:BR(sp.brewery).name,stage:null,stop:null,stageCount:0,ratings:[],seasons:[]};BREWERIES.push(b)}
+        b.ratings=b.ratings.concat(ents);
+        if(b.seasons.indexOf(sid)<0)b.seasons.push(sid);
+      }));
+      STAGES.push({id:si+1,label:DB.seasons[sid].label,total:total,ratedStops:rs});
+    });
+  }
+  const latest=ids.length?ids[ids.length-1]:null;
+  AGENDA=pickAgenda(year!=='all'&&DB.seasons[year]?year:latest);
+}
+function pickAgenda(sid){
+  const s=sid&&DB.seasons[sid];
+  if(!s||!(s.stages||[]).length)return null;
+  const today=isoToday();
+  let idx=s.stages.findIndex(st=>st.date===today);
+  if(idx<0)idx=s.stages.findIndex(st=>st.date>today);
+  if(idx<0)idx=s.stages.length-1;
+  const st=s.stages[idx];
+  return {
+    date:st.date,label:fmtLong(st.date),stageNo:idx+1,sid:sid,
+    stops:validStops(st,sid).map(sp=>({brewery:sp.brewery,start:sp.start,end:sp.end,travel:sp.travel,note:sp.note,ratings:entries(sp.ratings,sid,idx+1,sp.brewery)}))
+  };
+}
+function applyYear(){buildModel(state.year)}
+function populateYears(){
+  const sel=document.querySelector('select[data-year]');
+  if(!sel)return;
+  const ids=seasonIds().slice().reverse();
+  sel.innerHTML='<option value="all">All</option>'+ids.map(id=>'<option value="'+esc(id)+'"'+(id===state.year?' selected':'')+'>'+esc(DB.seasons[id].label)+'</option>').join('');
+  sel.value=state.year;
+}
+function prepare(){
+  const mw=DB.manifest.weights||{};
+  W=[mw.beer!=null?mw.beer:.5,mw.service!=null?mw.service:.25,mw.gl!=null?mw.gl:.25];
+  PEOPLE=Object.keys((DB.people||{}).people||{}).map(id=>({id:id,name:DB.people.people[id].name}));
+  const ids=seasonIds();
+  state.year=ids.length?ids[ids.length-1]:'all';
+  populateYears();
+  applyYear();
+}
 
 const state={
-  view:'winners',ttab:'ratings',year:'2026',pord:'rating',ptab:'scores',stage:'all',cons:'distance',open:new Set(),focus:null,
+  view:'winners',ttab:'ratings',year:'all',pord:'rating',ptab:'scores',stage:'all',cons:'distance',open:new Set(),focus:null,
   bsort:{key:'overall',dir:'desc'},
   psort:{
     scores:{key:'overall',dir:'desc'},
@@ -349,8 +428,8 @@ const state={
 /* ---------- calculations ---------- */
 function computeBrews(){
   const out=BREWERIES.map(b=>{
-    const vs=Object.values(b.ratings),n=vs.length;
-    const base=Object.assign({},b,{n:n,rated:n>0,stageCount:BREWERIES.filter(x=>x.stage===b.stage).length});
+    const vs=b.ratings.map(r=>r.v),n=vs.length;
+    const base=Object.assign({},b,{n:n,rated:n>0});
     if(!n)return base;
     const m=[0,1,2].map(i=>mean(vs.map(v=>v[i])));
     return Object.assign(base,{beer:m[0],svc:m[1],gl:m[2],overall:wsum(m)});
@@ -361,10 +440,12 @@ function computeBrews(){
 }
 function computePeople(brews){
   const rb=brews.filter(b=>b.rated);
-  const active=new Set(rb.map(b=>b.stage));
+  const active=new Set();
+  rb.forEach(b=>b.ratings.forEach(r=>active.add(r.st)));
+  const ratedTotal=STAGES.reduce((a,s)=>a+s.ratedStops,0);
   return PEOPLE.map(p=>{
     const items=[];
-    rb.forEach(b=>{const v=b.ratings[p.name];if(v)items.push({b:b,v:v})});
+    rb.forEach(b=>b.ratings.forEach(r=>{if(r.p===p.name)items.push({b:b,v:r.v,st:r.st})}));
     const n=items.length;
     if(!n)return null;
     const ref=it=>[it.b.beer,it.b.svc,it.b.gl];
@@ -373,17 +454,22 @@ function computePeople(brews){
     const da=[0,1,2].map(i=>mean(items.map(it=>Math.abs(it.v[i]-ref(it)[i]))));
     const stages=STAGES.map(st=>({
       id:st.id,
-      total:BREWERIES.filter(x=>x.stage===st.id).length,
-      rated:items.filter(it=>it.b.stage===st.id).length,
+      total:st.total,
+      rated:items.filter(it=>it.st===st.id).length,
       active:active.has(st.id)
     }));
+    const byB={};
+    items.forEach(it=>{(byB[it.b.id]=byB[it.b.id]||{b:it.b,vs:[]}).vs.push(it.v)});
+    const picks=Object.keys(byB).map(k=>{
+      const g=byB[k],mm=[0,1,2].map(i=>mean(g.vs.map(v=>v[i])));
+      return {b:g.b,s:wsum(mm),beer:mm[0]};
+    }).sort((x,y)=>y.s-x.s||y.beer-x.beer||x.b.rank-y.b.rank);
     return {
-      name:p.name,inferred:!!p.inferred,n:n,few:n<MIN,
+      name:p.name,n:n,few:n<MIN,
       overall:wsum(m),beer:m[0],svc:m[1],gl:m[2],
       dev:{overall:mean(items.map(it=>wsum(it.v)-it.b.overall)),beer:dv[0],svc:dv[1],gl:dv[2]},
       abs:{overall:mean(items.map(it=>Math.abs(wsum(it.v)-it.b.overall))),beer:da[0],svc:da[1],gl:da[2]},
-      stages:stages,stagesAttended:stages.filter(s=>s.rated>0).length,ratedTotal:rb.length,
-      picks:items.map(it=>({b:it.b,s:wsum(it.v),beer:it.v[0]})).sort((x,y)=>y.s-x.s||y.beer-x.beer||x.b.rank-y.b.rank)
+      stages:stages,stagesAttended:stages.filter(s=>s.rated>0).length,ratedTotal:ratedTotal,picks:picks
     };
   }).filter(Boolean);
 }
@@ -421,14 +507,19 @@ function chips(items,isOn,attr){
 
 /* ---------- breweries ---------- */
 function detailHtml(b){
-  const st=STAGES.find(s=>s.id===b.stage);
-  const where='Stage '+b.stage+' ('+st.label+'), stop '+b.stop+' of '+b.stageCount+'.';
+  let where;
+  if(SCOPE.all){
+    const ss=(b.seasons||[]).map(id=>DB.seasons[id].label);
+    where='Rated in '+ss.join(', ')+'.';
+  }else{
+    const st=STAGES.find(s=>s.id===b.stage);
+    where='Stage '+b.stage+' ('+st.label+'), stop '+b.stop+' of '+b.stageCount+'.';
+  }
   if(!b.rated)return '<div class="dbox"><p style="margin:0">'+where+' Not rated yet.</p></div>';
-  const order=PEOPLE.map(p=>p.name).concat(Object.keys(b.ratings).filter(k=>!PNAMES.has(k)));
-  const rcs=order.filter(k=>b.ratings[k]).map(k=>{
-    const v=b.ratings[k],label=PNAMES.has(k)?k:'Unattributed';
-    return '<span class="rc"><b>'+esc(label)+'</b><span>'+v[0]+' '+v[1]+' '+v[2]+'</span></span>';
-  }).join('');
+  const order=PEOPLE.map(p=>p.name);
+  const rs=b.ratings.slice().sort((x,y)=>(order.indexOf(x.p)-order.indexOf(y.p))||(x.sid<y.sid?1:-1));
+  const multi=SCOPE.all&&(b.seasons||[]).length>1;
+  const rcs=rs.map(r=>'<span class="rc"><b>'+esc(r.p)+'</b>'+(multi?'<small>'+esc(r.sid)+'</small>':'')+'<span>'+r.v[0]+' '+r.v[1]+' '+r.v[2]+'</span></span>').join('');
   return '<div class="dbox"><p>'+where+' '+plural(b.n,'rating')+'. Scores are beer, service, genius loci.</p><div class="rcs">'+rcs+'</div></div>';
 }
 function renderBreweries(){
@@ -448,12 +539,12 @@ function renderBreweries(){
       cell('overall','ov')+cell('beer')+cell('svc')+cell('gl')+'</tr>'+
       (open?'<tr><td class="detail" colspan="6">'+detailHtml(b)+'</td></tr>':'');
   }).join('');
-  const stageNote=state.stage==='all'
-    ?'Tap a brewery to see each person\u2019s scores. Gold marks the best in each column.'
+  const stageNote=(state.stage==='all'||SCOPE.all)
+    ?'Tap a brewery to see each person\u2019s scores. Gold marks the best in each column.'+(SCOPE.all?' Every rating from every season counts, so a brewery\u2019s score is the average of all of them.':'')
     :'Stage '+state.stage+': '+STAGES.find(x=>x.id===state.stage).label+'. Ranks are overall, across all stages.';
   return ''+
-    '<p class="lede">Overall is 50% beer, 25% service and 25% genius loci (GL).</p>'+
-    chips([['all','All']].concat(STAGES.map(x=>[x.id,'Stage '+x.id])),v=>String(state.stage)===String(v),'data-stage')+
+    '<p class="lede">Overall is '+wtext()+' (GL).</p>'+
+    (SCOPE.all?'':chips([['all','All']].concat(STAGES.map(x=>[x.id,'Stage '+x.id])),v=>String(state.stage)===String(v),'data-stage'))+
     '<table><colgroup><col style="width:34px"><col><col style="width:54px"><col style="width:46px"><col style="width:46px"><col style="width:46px"></colgroup>'+
     '<thead><tr><th class="txt"><span class="plain" style="text-align:left">#</span></th>'+
     th('Brewery','name',s,'b','txt')+th('Overall','overall',s,'b')+th('Beer','beer',s,'b')+th('Svc','svc',s,'b')+th('GL','gl',s,'b')+
@@ -463,16 +554,10 @@ function renderBreweries(){
 
 /* ---------- people ---------- */
 function who(p){
-  return '<div class="who"><b>'+esc(p.name)+(p.inferred?'<sup class="dag">\u2020</sup>':'')+'</b><small>'+plural(p.n,'rating')+(p.few?', small sample':'')+'</small></div>';
+  return '<div class="who"><b>'+esc(p.name)+'</b><small>'+plural(p.n,'rating')+(p.few?', small sample':'')+'</small></div>';
 }
 function peopleNotes(people,showFew){
-  const notes=[];
-  if(showFew)notes.push('Grey rows have fewer than '+MIN+' ratings. They are listed last and not highlighted.');
-  if(people.some(p=>p.inferred))notes.push('\u2020 Matched to this person by column position in the sheet. The sheet has no summary for them to confirm it.');
-  const un=[];
-  BREWERIES.forEach(b=>{Object.keys(b.ratings).forEach(k=>{if(!PNAMES.has(k))un.push(b.name)})});
-  if(un.length)notes.push('Not shown here: '+plural(un.length,'rating')+' not matched to a person ('+Array.from(new Set(un)).join(', ')+'). '+(un.length===1?'It counts':'They count')+' toward the brewery score only.');
-  return notes.map(n=>'<p class="note">'+n+'</p>').join('');
+  return showFew?'<p class="note">Grey rows have fewer than '+MIN+' ratings. They are listed last and not highlighted.</p>':'';
 }
 function renderScores(people){
   const s=state.psort.scores;
@@ -492,7 +577,7 @@ function renderScores(people){
     '<tbody>'+body+'</tbody></table>'+peopleNotes(people,true);
 }
 function strip(p){
-  const label=p.stages.filter(s=>s.active).map(s=>'Stage '+s.id+': '+s.rated+' of '+s.total).join('; ');
+  const label=p.stages.filter(s=>s.active).map(s=>(SCOPE.all?STAGES[s.id-1].label:'Stage '+s.id)+': '+s.rated+' of '+s.total).join('; ');
   return '<span class="strip" role="img" aria-label="'+label+'">'+p.stages.map(s=>{
     if(!s.active)return '<i class="sg ghost"></i>';
     return '<i class="sg" style="--f:'+Math.round(100*s.rated/s.total)+'%"></i>';
@@ -504,15 +589,15 @@ function renderAttendance(people){
   const tie=(a,b)=>s.key==='stages'?a.n-b.n:a.stagesAttended-b.stagesAttended;
   const rows=sortRows(people,s,get,{tie:tie});
   const total=people.length?people[0].ratedTotal:0;
-  const body=rows.map(p=>'<tr><td class="txt"><div class="who"><b>'+esc(p.name)+(p.inferred?'<sup class="dag">\u2020</sup>':'')+'</b></div></td>'+
+  const body=rows.map(p=>'<tr><td class="txt"><div class="who"><b>'+esc(p.name)+'</b></div></td>'+
     '<td class="num" style="text-align:center">'+strip(p)+'</td>'+
     '<td class="num">'+p.stagesAttended+'/'+STAGES.filter(st=>p.stages[st.id-1].active).length+'</td>'+
     '<td class="num ov">'+p.n+'<span style="color:var(--muted);font-weight:400">/'+total+'</span></td></tr>').join('');
   const anyActive=id=>people.some(p=>p.stages[id-1].active);
-  const legend=STAGES.map(st=>'<span>Stage '+st.id+': '+st.label+(anyActive(st.id)?'':' (not rated yet)')+'</span>').join('');
-  return '<p class="lede">Who shows up, and how often. Bars are the four stages in order, filled by the share of that stage\u2019s breweries the person rated.</p>'+
+  const legend=STAGES.map(st=>'<span>'+(SCOPE.all?'':'Stage '+st.id+': ')+st.label+(anyActive(st.id)?'':' (not rated yet)')+'</span>').join('');
+  return '<p class="lede">Who shows up, and how often. Bars are the '+(SCOPE.all?'seasons':'stages')+' in order, filled by the share of that '+SCOPE.unit+'\u2019s breweries the person rated.</p>'+
     '<table><colgroup><col><col style="width:92px"><col style="width:54px"><col style="width:62px"></colgroup>'+
-    '<thead><tr>'+th('Person','name',s,'pa','txt')+'<th><span class="plain">By stage</span></th>'+th('Stages','stages',s,'pa')+th('Rated','ratings',s,'pa')+'</tr></thead>'+
+    '<thead><tr>'+th('Person','name',s,'pa','txt')+'<th><span class="plain">By '+SCOPE.unit+'</span></th>'+th(SCOPE.all?'Seasons':'Stages','stages',s,'pa')+th('Rated','ratings',s,'pa')+'</tr></thead>'+
     '<tbody>'+body+'</tbody></table><div class="legend">'+legend+'</div>'+peopleNotes(people,false);
 }
 function renderConsistency(people){
@@ -566,7 +651,7 @@ function renderFavourites(people){
   return line+
     '<table><colgroup><col style="width:100px"><col><col style="width:54px"></colgroup>'+
     '<thead><tr>'+plain('Person')+plain('Favourite')+plain('Score','r')+'</tr></thead><tbody>'+body+'</tbody></table>'+
-    '<p class="note">Each person\u2019s highest-scoring brewery, using their own beer, service and GL scores (50/25/25). A tie goes to the higher beer score, and a full tie shows both. Score is the overall they gave it. The tally counts people with at least '+MIN+' ratings, and a tie counts for each brewery.</p>'+
+    '<p class="note">Each person\u2019s highest-scoring brewery, using their own beer, service and GL scores ('+wslash()+'). A tie goes to the higher beer score, and a full tie shows both. Score is the overall they gave it. The tally counts people with at least '+MIN+' ratings, and a tie counts for each brewery.'+(SCOPE.all?' Across seasons, a person\u2019s score for a brewery is the average of their ratings for it.':'')+'</p>'+
     peopleNotes(people,true);
 }
 function renderPeople(){
@@ -586,39 +671,45 @@ function renderPeople(){
 /* ---------- today ---------- */
 const pad=n=>String(n).padStart(2,'0');
 const toMin=t=>{const p=t.split(':');return Number(p[0])*60+Number(p[1])};
+function stopStats(ents){
+  const n=ents.length;
+  if(!n)return {n:0,rated:false};
+  const m=[0,1,2].map(i=>mean(ents.map(r=>r.v[i])));
+  return {n:n,rated:true,overall:wsum(m)};
+}
 function renderToday(){
-  const brews=computeBrews();
-  const byId={};
-  brews.forEach(b=>{byId[b.id]=b});
+  if(!AGENDA||!AGENDA.stops.length)return '<p class="lede">No agenda yet.</p>';
   const d=new Date();
-  const isToday=d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())===AGENDA.date;
+  const isToday=AGENDA.date===isoToday();
   const mins=d.getHours()*60+d.getMinutes();
   const stops=AGENDA.stops;
   let nextSet=false;
   const labels={now:'Now',next:'Next',done:'Done'};
   const star='<svg class="star" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.4l-5.9 3.1 1.2-6.5L2.5 9.4l6.6-.9z"/></svg>';
   const items=stops.map((s,i)=>{
-    const b=byId[s.brewery];
+    const b=stopStats(s.ratings),name=BR(s.brewery).name;
     let status='';
-    if(isToday){
+    if(isToday&&s.start){
       if(s.end&&mins>=toMin(s.end))status='done';
       else if(mins>=toMin(s.start))status='now';
       else if(!nextSet){status='next';nextSet=true}
     }
     const tag=status?'<span class="tag '+status+'">'+labels[status]+'</span>':'';
     const stat=b.rated
-      ?'<div class="srow">'+star+'<span class="rt">Rated</span><b class="sc">'+f2(b.overall)+'</b><span class="cnt">'+plural(b.n,'rating')+'</span><button type="button" class="btn" data-goto="'+b.id+'">See scores</button></div>'
+      ?'<div class="srow">'+star+'<span class="rt">Rated</span><b class="sc">'+f2(b.overall)+'</b><span class="cnt">'+plural(b.n,'rating')+'</span><button type="button" class="btn" data-goto="'+esc(s.brewery)+'">See scores</button></div>'
       :'<div class="srow"><span class="rt">Not rated yet</span></div>';
     const note=s.note?'<div class="snote">'+esc(s.note)+'</div>':'';
     const nxt=stops[i+1];
-    const travel=(nxt&&s.travel)?'<div class="travel">'+s.travel+' min travel to '+esc(byId[nxt.brewery].name)+'</div>':'';
-    return '<li class="stop'+(status?' '+status:'')+'"><div class="big">'+(i+1)+'</div><div><div class="when">'+s.start+(s.end?'\u2013'+s.end:'')+tag+'</div><h2>'+esc(b.name)+'</h2>'+stat+note+travel+'</div></li>';
+    const travel=(nxt&&s.travel)?'<div class="travel">'+s.travel+' min travel to '+esc(BR(nxt.brewery).name)+'</div>':'';
+    const when=s.start?s.start+(s.end?'\u2013'+s.end:''):'';
+    return '<li class="stop'+(status?' '+status:'')+'"><div class="big">'+(i+1)+'</div><div><div class="when">'+when+tag+'</div><h2>'+esc(name)+'</h2>'+stat+note+travel+'</div></li>';
   }).join('');
-  const ratedN=stops.filter(s=>byId[s.brewery].rated).length;
+  const ratedN=stops.filter(s=>s.ratings.length>0).length;
+  const last=stops[stops.length-1];
   return ''+
-    '<p class="lede">'+AGENDA.label+'. Stage '+AGENDA.stage+', the last of the season: '+stops.length+' stops, starting at '+stops[0].start+'. '+ratedN+' of '+stops.length+' rated.</p>'+
+    '<p class="lede">'+AGENDA.label+'. Stage '+AGENDA.stageNo+': '+stops.length+' stops'+(stops[0].start?', starting at '+stops[0].start:'')+'. '+ratedN+' of '+stops.length+' rated.</p>'+
     '<ol class="tour">'+items+'</ol>'+
-    '<p class="note">The first three stops are an hour each, with travel time in between, as planned in the schedule sheet. BRLO is open-ended.</p>';
+    (stops.some(s=>s.start)?'<p class="note">Times and travel come from the plan for this stage.'+(last.start&&!last.end?' The last stop is open-ended.':'')+'</p>':'');
 }
 
 /* ---------- winners ---------- */
@@ -664,16 +755,16 @@ function renderWinners(){
   const bg=topGroups(rated,b=>b.overall);
   const pg=topGroups(people,p=>p.n+p.stagesAttended/100);
   const bStat=it=>'<b class="psc">'+f2(it.overall)+'</b><span class="pstat">beer '+f2(it.beer)+', service '+f2(it.svc)+', GL '+f2(it.gl)+'</span>';
-  const pStat=it=>'<b class="psc">'+plural(it.n,'rating')+'</b><span class="pstat">across '+plural(it.stagesAttended,'stage')+'</span>';
+  const pStat=it=>'<b class="psc">'+plural(it.n,'rating')+'</b><span class="pstat">across '+plural(it.stagesAttended,SCOPE.unit)+'</span>';
   const trophy='<svg class="trophy" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 4h8v5a4 4 0 0 1-8 0V4z"/><path d="M8 6H5.5a1 1 0 0 0-1 1c0 2 1.5 3.5 3.5 3.5"/><path d="M16 6h2.5a1 1 0 0 1 1 1c0 2-1.5 3.5-3.5 3.5"/><path d="M12 13v4"/><path d="M9.5 20h5"/></svg>';
   return '<div class="fx">'+confetti()+
-    '<div class="win-hero">'+trophy+'<h1>Winners</h1><p class="lede">Season 2025/26 results</p></div>'+
+    '<div class="win-hero">'+trophy+'<h1>Winners</h1><p class="lede">'+(SCOPE.all?'All seasons':'Season '+esc(SCOPE.label)+' results')+'</p></div>'+
     '<div class="about"><b>TDBB</b> is the Tour de Berlin Breweries, the Berlin edition of <b>TDP</b>, <a href="https://www.tourdepivovar.cz/" target="_blank" rel="noopener">Tour de Pivovar</a> (pivovar is Czech for brewery), which started in Prague in 2012. We visit breweries in stages and score each one for beer, service and genius loci, the feel of the place.</div>'+
-    '<h2 class="sec">Breweries of the year</h2><p class="sec-sub">The three best overall scores.</p>'+
+    '<h2 class="sec">'+(SCOPE.all?'Breweries of all time':'Breweries of the year')+'</h2><p class="sec-sub">The three best overall scores.</p>'+
     podium(bg,bStat,false)+'</div>'+
     '<h2 class="sec">The regulars</h2><p class="sec-sub">The people who rated the most breweries.</p>'+
     podium(pg,pStat,true)+
-    '<p class="note">Breweries are ranked by overall score (50% beer, 25% service, 25% genius loci). People are ranked by breweries rated, then by stages attended. A tie shares the place.</p>';
+    '<p class="note">Breweries are ranked by overall score ('+wtext().replace(' and ',', ')+'). People are ranked by ratings given, then by '+(SCOPE.all?'seasons':'stages')+' attended. A tie shares the place.</p>';
 }
 
 /* ---------- brewery profiles ---------- */
@@ -685,14 +776,14 @@ function renderProfiles(){
   const pin='<svg class="pin" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.4"/></svg>';
   const cards=rows.map(b=>{
     const p=PROFILES[b.id]||{addr:'',line:''};
-    const pic=p.img?'<img src="'+esc(p.img)+'" alt="">':esc(initials(b.name));
+    const pic=esc(initials(b.name))+'<img src="img/'+esc(b.id)+'.jpg" alt="" loading="lazy">';
     const maps='https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(b.name+', '+p.addr);
-    return '<article class="card"><div class="pic">'+pic+'</div><div><div class="ch"><h2>'+esc(b.name)+'</h2>'+
+    return '<article class="card"><div class="pic">'+pic+'</div><div><div class="ch"><h2>'+esc(b.name)+(p.status==='closed'?'<span class="tagc">Closed</span>':'')+'</h2>'+
       '<div class="cr">'+STARSVG+'<b>'+(b.rated?f2(b.overall):'\u2013')+'</b>'+(b.rated?'<small>#'+b.rank+'</small>':'')+'</div></div>'+
       '<a class="addr" href="'+esc(maps)+'" target="_blank" rel="noopener">'+pin+'<span>'+esc(p.addr)+'</span></a>'+
       '<p class="hl">'+esc(p.line)+'</p></div></article>';
   }).join('');
-  return '<h1>Breweries</h1><p class="lede">'+rows.length+' places on this season\u2019s Tour de Berlin Breweries. The score is the group\u2019s overall rating; tap an address to open it in Maps.</p>'+
+  return '<h1>Breweries</h1><p class="lede">'+rows.length+(SCOPE.all?' places visited on the Tour de Berlin Breweries.':' places on this season\u2019s Tour de Berlin Breweries.')+' The score is the group\u2019s overall rating; tap an address to open it in Maps.</p>'+
     chips([['rating','Top rated'],['name','A to Z']],v=>state.pord===v,'data-bord')+cards;
 }
 
@@ -706,12 +797,19 @@ function renderTour(){
 
 /* ---------- shell ---------- */
 function updateProgress(){
-  const n=BREWERIES.filter(b=>Object.keys(b.ratings).length>0).length;
-  document.getElementById('progress').textContent=n+' of '+BREWERIES.length+' rated';
+  const n=BREWERIES.filter(b=>b.ratings.length>0).length;
+  document.getElementById('progress').textContent=BREWERIES.length?n+' of '+BREWERIES.length+' rated':'';
+}
+function banners(){
+  let s='';
+  if(EMBEDDED)s+='<div class="banner test"><b>Test data</b> is embedded in this page'+(EMBEDDED.builtAt?' (built '+esc(EMBEDDED.builtAt)+')':'')+'. This is a test build, not the live data.</div>';
+  if(WARN.length)s+='<div class="banner warn"><b>Some data could not be used:</b><ul>'+WARN.slice(0,6).map(w=>'<li>'+esc(w)+'</li>').join('')+'</ul></div>';
+  return s;
 }
 function render(){
+  if(!DB)return;
   updateProgress();
-  document.getElementById('app').innerHTML=({winners:renderWinners,breweries:renderProfiles,tour:renderTour,people:renderPeople})[state.view]();
+  document.getElementById('app').innerHTML=banners()+({winners:renderWinners,breweries:renderProfiles,tour:renderTour,people:renderPeople})[state.view]();
   ['winners','breweries','tour','people'].forEach(v=>{const n=document.getElementById('nav-'+v);if(v===state.view)n.setAttribute('aria-current','page');else n.removeAttribute('aria-current')});
 }
 const PTABS=['scores','favourites','attendance','consistency'];
@@ -792,10 +890,21 @@ document.addEventListener('click',e=>{
   }
 });
 
-readHash();
-render();
+async function start(){
+  document.getElementById('app').innerHTML='<p class="lede">Loading\u2026</p>';
+  try{DB=await loadData();prepare()}
+  catch(e){showFatal(e);return}
+  readHash();
+  render();
+}
+start();
 setInterval(()=>{if(state.view==='tour'&&state.ttab==='today')render()},60000);
-document.addEventListener('change',e=>{if(e.target&&e.target.matches&&e.target.matches('select[data-year]'))state.year=e.target.value});
+document.addEventListener('change',e=>{
+  if(DB&&e.target&&e.target.matches&&e.target.matches('select[data-year]')){
+    state.year=e.target.value;state.open=new Set();state.stage='all';
+    applyYear();render();
+  }
+});
 document.addEventListener('error',e=>{if(e.target&&e.target.tagName==='IMG')e.target.remove()},true);
 })();
 </script>

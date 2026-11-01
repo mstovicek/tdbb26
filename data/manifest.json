@@ -1,0 +1,11 @@
+{
+ "version": 1,
+ "weights": {
+  "beer": 0.5,
+  "service": 0.25,
+  "gl": 0.25
+ },
+ "seasons": [
+  "2026"
+ ]
+}

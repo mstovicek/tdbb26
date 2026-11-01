@@ -1,0 +1,113 @@
+{
+ "version": 1,
+ "breweries": {
+  "strassenbrau": {
+   "name": "Straßenbräu",
+   "address": "Neue Bahnhofstraße 30, 10245 Berlin",
+   "highlight": "A taproom with the second-best beer of the season (4.50), though there is no food, so eat first.",
+   "status": "open"
+  },
+  "heidenpeters": {
+   "name": "Heidenpeters",
+   "address": "Eisenbahnstraße 42-43, 10997 Berlin",
+   "highlight": "Open from noon on Saturdays with food and a solid beer score of 3.92, closing early at 20:00.",
+   "status": "open"
+  },
+  "neulich": {
+   "name": "Neulich",
+   "address": "Selchower Str. 20, 12049 Berlin",
+   "highlight": "Open until 03:00 on Saturdays with food and a 4.00 for atmosphere, a good place for a late stop.",
+   "status": "open"
+  },
+  "brauhaussuedstern": {
+   "name": "Brauhaus Südstern",
+   "address": "Hasenheide 69, 10967 Berlin",
+   "highlight": "Brewery with food, open until 01:00 on Saturdays, but service can be slow so give it time.",
+   "status": "open"
+  },
+  "schoppebrau": {
+   "name": "Schoppe Bräu",
+   "address": "Manteuffelstr. 53, 10999 Berlin",
+   "highlight": "A tiny taproom with the third-best atmosphere score (4.25) and just one couch table for 8 to 10 people.",
+   "status": "open"
+  },
+  "berlinerberg": {
+   "name": "Berliner Berg",
+   "address": "Treptower Str. 39, Berlin",
+   "highlight": "Beer garden with Berliner Weisse, the top service score of the season (5.00), and you can bring your own food.",
+   "status": "open"
+  },
+  "schalander": {
+   "name": "Schalander",
+   "address": "Revaler Str. 99, Haus 9, 10245 Berlin",
+   "highlight": "In the RAW area with flammkuchen on the menu and a strong 4.33 for atmosphere.",
+   "status": "open"
+  },
+  "hopsandbarley": {
+   "name": "Hops & Barley",
+   "address": "Wühlischstraße 22/23, 10245 Berlin",
+   "highlight": "Small taproom with the third-best beer of the season (4.40) and no food.",
+   "status": "open"
+  },
+  "protokoll": {
+   "name": "Protokoll",
+   "address": "Boxhagener Str. 110, 10245 Berlin",
+   "highlight": "Small taproom serving four of its own beers, with no food on the menu.",
+   "status": "open"
+  },
+  "georgbrau": {
+   "name": "Georgbräu",
+   "address": "Spreeufer 4, 10178 Berlin",
+   "highlight": "Brewery on the Spreeufer with food, open from noon to 22:00.",
+   "status": "open"
+  },
+  "brauhausspandau": {
+   "name": "Brauhaus Spandau",
+   "address": "Neuendorfer Straße 1, 13585 Berlin",
+   "highlight": "Brewpub in Spandau with food from 11:00; we visited during the Christmas market, and it is best to book ahead.",
+   "status": "open"
+  },
+  "eschenbrau": {
+   "name": "Eschenbräu",
+   "address": "Triftstraße 67, 13353 Berlin",
+   "highlight": "Large brewery with pretzels and flammkuchen, open until 01:00; book about two weeks ahead.",
+   "status": "open"
+  },
+  "vagabundkesselhaus": {
+   "name": "Vagabund Kesselhaus",
+   "address": "Oudenarder Str. 16-20, 13347 Berlin",
+   "highlight": "Brewery with food that stays open until 02:00 on Saturdays, with service as its best score (3.50).",
+   "status": "open"
+  },
+  "circus": {
+   "name": "Circus",
+   "address": "Weinbergsweg 1a, 10119 Berlin",
+   "highlight": "Come for the Hoff museum and the one beer on tap; there is no food in the brewery.",
+   "status": "open"
+  },
+  "schankhallepfefferberg": {
+   "name": "Schankhalle Pfefferberg",
+   "address": "Schönhauser Allee 176, 10119 Berlin",
+   "highlight": "Large brewpub with a beer garden, but it opens at 15:00 so there is no lunch.",
+   "status": "open"
+  },
+  "marcusbrau": {
+   "name": "Marcus-Bräu",
+   "address": "Münzstraße 1-3, 10178 Berlin",
+   "highlight": "Reasonable prices for normal food and good service (3.67), though opinions on the beer were split.",
+   "status": "open"
+  },
+  "lemkehackeschermarkt": {
+   "name": "Lemke Hackescher Markt",
+   "address": "S-Bahnbogen 143, Dircksenstraße, 10178 Berlin",
+   "highlight": "Large Berliner Weisse brewery in the S-Bahn arches at Hackescher Markt, with a very good beer score of 4.14 but weaker service.",
+   "status": "open"
+  },
+  "brlo": {
+   "name": "BRLO Brwhouse",
+   "address": "Schöneberger Str. 16, 10963 Berlin",
+   "highlight": "Brewhouse with food, open from noon, and one of the better beers of the season (4.00); book ahead for groups.",
+   "status": "open"
+  }
+ }
+}
