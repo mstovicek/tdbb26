@@ -12,4 +12,8 @@ node --test tests/js/                            # the page, run against a stand
 - `tests/python/test_crosscheck.py` runs the same data through `summary.py` and the page and compares every rank and
   score as text. Scores are rounded half up to two decimals in both.
 - **Test data is built inside the tests** (temporary folders, `tests/js/fixtures.mjs`). Never add fake ratings to `data/`.
-- CI runs both on every push to `master` and on pull requests (`.github/workflows/tests.yml`).
+- CI (GitHub Pages does the deploy; these only check):
+  - `validate.yml` runs on **every** push to `master` and every pull request. It takes seconds and validates `data/`,
+    which is what breaks the live site. A data-only change (ratings from your phone, descriptions) runs only this.
+  - `tests.yml` runs both suites **only when code changes**: `index.html`, `.claude/skills/**/scripts/**`, `tests/**`
+    or the workflow itself. Changes to `data/`, `img/` or the docs do not trigger it.

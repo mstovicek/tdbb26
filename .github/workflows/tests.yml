@@ -1,9 +1,20 @@
 name: Tests
 
+# Only when code changes. Data-only changes (data/, img/) are covered by "Validate data".
 on:
   push:
     branches: [master]
+    paths:
+      - 'index.html'
+      - '.claude/skills/**/scripts/**'
+      - 'tests/**'
+      - '.github/workflows/tests.yml'
   pull_request:
+    paths:
+      - 'index.html'
+      - '.claude/skills/**/scripts/**'
+      - 'tests/**'
+      - '.github/workflows/tests.yml'
 
 permissions:
   contents: read
@@ -11,6 +22,7 @@ permissions:
 jobs:
   tests:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -19,7 +31,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Validate the data and test the scripts (includes the Python/JavaScript cross-check)
+      - name: Test the scripts (includes the Python/JavaScript cross-check)
         run: python3 -m unittest discover -s tests/python -v
       - name: Test the page
         run: node --test tests/js/

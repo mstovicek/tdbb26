@@ -1,0 +1,22 @@
+name: Validate data
+
+# Fast (seconds) and always on: a bad data file is what breaks the live site.
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+      - name: Validate data/ and check that index.html has no embedded test data
+        run: python3 .claude/skills/tdbb-ingest/scripts/validate.py data --index index.html
