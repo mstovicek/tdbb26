@@ -29,10 +29,10 @@ One file, no libraries, no build step. Inside the `<script>`:
    Trends are derived too: `sparkline` and `trendDelta` (last season against the one before it) and `movers`
    (biggest improvements of the selected season, or the latest on All, against each brewery's previous rated season).
 4. **Views.** `renderWinners` (podium of the three best breweries, **Biggest movers**, top five regulars),
-   `renderProfiles` (Breweries: sort Top rated, Trend, A to Z; sparkline per brewery rated in two or more seasons;
+   `renderProfiles` (Breweries, with List and Map tabs; the list sorts by Top rated, Trend or A to Z; sparkline per brewery rated in two or more seasons;
    badges Closed and Doesn't qualify), `renderTour` → `renderBreweries` (Ratings) and
    `renderToday`, `renderPeople` → Scores, Favourites, Attendance, Consistency.
-5. **Shell.** `render()`, hash routing (`#winners`, `#breweries`, `#tour-ratings`, `#tour-today`,
+5. **Shell.** `render()`, hash routing (`#winners`, `#breweries`, `#breweries-map`, `#tour-ratings`, `#tour-today`,
    `#people-<tab>`), one delegated click handler, the year selector in the header. The selected season is kept in the
    query string (`?year=2025` or `?year=all`, set with `history.replaceState`) so a refresh keeps it; the view stays in the hash.
 
@@ -62,6 +62,10 @@ or rename one as part of a design task. If the format must change, treat it as i
 - Do not hardcode brewery names, ids, seasons or scores in the page, and keep state words (closed, no longer qualifies)
   out of data text: the page shows badges from the fields.
 - The favicon is an inline SVG data URI in `<head>` (gold beer mug on charcoal), so it needs no extra file.
+- **One exception to the no-remote-content rule:** the Breweries Map tab loads Leaflet 1.9.4 from cdnjs (with SRI
+  hashes) and OpenStreetMap tiles, only when the tab is opened. No API key. Tiles are darkened with a CSS filter. Do not
+  switch to CARTO tiles (they now need a key). Pins come from optional `lat`/`lng` in `breweries.json`; breweries
+  without them are simply not shown. Pin colours: gold brewing on site, lilac does not qualify, grey closed.
 - Keep the page one file, with no remote images and no remote scripts. Fonts: Barlow from Google Fonts with a system
   fallback. Photos are `img/<breweryid>.jpg`, shown as a circle over an initials fallback. Use only the group's own photos
   (or with permission); never copy from Google Maps. There are none for now, so every brewery shows initials.
@@ -77,6 +81,9 @@ Dark charcoal `#353433` background, raised `#403f3d`, lines `#504e4b`, text `#F5
 Rank circles echo the Tour screen from the original TDP app design. Keep tables simple and sortable, one screenful per section.
 
 ## Testing a change
+
+For the map, never commit demo coordinates. Inject them into `index-test.html` only, serve the repo
+(`python3 -m http.server`) and open `index-test.html?year=all#breweries-map`; check the pins and a popup at 390 px wide.
 
 1. Check the data first: `python3 .claude/skills/tdbb-ingest/scripts/validate.py data`.
 2. Real loading path: serve the repo root (`python3 -m http.server 8000`) and open `http://localhost:8000/`.

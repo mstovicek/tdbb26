@@ -62,6 +62,18 @@ h1{margin:6px 0 2px;font-size:24px;line-height:1.2;font-weight:700}
   min-height:40px;border:0;border-radius:9px;background:transparent;cursor:pointer;padding:0 2px;
   font-weight:600;font-size:13px;color:var(--muted);
 }
+.mapbox{height:62vh;min-height:340px;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--raise)}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;margin:10px 0 0;color:var(--muted);font-size:13px}
+.legend .lg{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:11px;height:11px;border-radius:50%;border:2px solid #2B2A29;box-sizing:content-box}
+.leaflet-container{font:inherit;background:var(--raise)}
+.leaflet-tile-pane{filter:invert(1) hue-rotate(180deg) brightness(.9) contrast(.85) saturate(.7)}
+.leaflet-container .leaflet-popup-content-wrapper,.leaflet-container .leaflet-popup-tip{background:var(--raise);color:var(--text);box-shadow:0 4px 14px rgba(0,0,0,.4)}
+.leaflet-container .leaflet-popup-content{margin:12px 14px;font-size:14px;line-height:1.45}
+.leaflet-container .leaflet-popup-content a{color:var(--gold)}
+.leaflet-container a.leaflet-popup-close-button{color:var(--muted)}
+.leaflet-container .leaflet-control-attribution{background:rgba(53,52,51,.8)!important;color:var(--muted)!important;font-size:11px}
+.leaflet-container .leaflet-control-attribution a{color:var(--text)!important}
 .seg button[aria-selected="true"]{background:var(--cream);color:var(--ink)}
 
 /* tables */
@@ -379,7 +391,7 @@ function buildModel(year){
   PROFILES={};
   Object.keys(DB.breweries.breweries||{}).forEach(id=>{
     const b=DB.breweries.breweries[id];
-    PROFILES[id]={addr:b.address||'',line:b.highlight||'',status:b.status||'open',qual:b.brewsOnSite!==false,elig:b.brewsOnSite!==false&&(b.status||'open')==='open'};
+    PROFILES[id]={addr:b.address||'',line:b.highlight||'',status:b.status||'open',qual:b.brewsOnSite!==false,elig:b.brewsOnSite!==false&&(b.status||'open')==='open',lat:typeof b.lat==='number'?b.lat:null,lng:typeof b.lng==='number'?b.lng:null};
   });
   STAGES=[];BREWERIES=[];
   if(year!=='all'&&DB.seasons[year]){
@@ -448,7 +460,7 @@ function prepare(){
 }
 
 const state={
-  view:'winners',ttab:'ratings',year:'all',pord:'rating',ptab:'scores',stage:'all',cons:'distance',open:new Set(),focus:null,
+  view:'winners',ttab:'ratings',btab:'list',year:'all',pord:'rating',ptab:'scores',stage:'all',cons:'distance',open:new Set(),focus:null,
   bsort:{key:'overall',dir:'desc'},
   psort:{
     scores:{key:'overall',dir:'desc'},
@@ -845,6 +857,66 @@ function trendDelta(id){
   return h.length<2?null:h[h.length-1].overall-h[h.length-2].overall;
 }
 function renderProfiles(){
+  const tabs=[['list','List'],['map','Map']];
+  const seg='<div class="seg two" role="tablist" aria-label="Breweries views">'+tabs.map(t=>
+    '<button type="button" role="tab" data-btab="'+t[0]+'" aria-selected="'+(state.btab===t[0])+'">'+t[1]+'</button>').join('')+'</div>';
+  if(state.btab==='map')return '<h1>Breweries</h1>'+seg+mapHtml();
+  return renderBreweryList(seg);
+}
+/* ---------- map: Leaflet and OpenStreetMap tiles, loaded only when the Map tab opens, no API key ---------- */
+const LEAFLET='https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/';
+let LEAF=null,MAP=null;
+function loadLeaflet(){
+  if(LEAF)return LEAF;
+  LEAF=new Promise((ok,fail)=>{
+    const l=document.createElement('link');
+    l.rel='stylesheet';l.href=LEAFLET+'leaflet.min.css';l.crossOrigin='anonymous';
+    l.integrity='sha512-h9FcoyWjHcOcmEVkxOfTLnmZFWIH0iZhZT1H2TbOq55xssQGEJHEaIm+PgoUaZbRvQTNTluNOEfb1ZRy6D3BOw==';
+    document.head.appendChild(l);
+    const j=document.createElement('script');
+    j.src=LEAFLET+'leaflet.min.js';j.crossOrigin='anonymous';
+    j.integrity='sha512-puJW3E/qXDqYp9IfhAI54BJEaWIfloJ7JWs7OeD5i6ruC9JZL1gERT1wjtwXFlh7CjE7ZJ+/vcRZRkIYIb6p4g==';
+    j.onload=()=>ok(window.L);j.onerror=()=>{LEAF=null;fail(new Error('Leaflet could not be loaded'))};
+    document.head.appendChild(j);
+  });
+  return LEAF;
+}
+const placed=()=>computeBrews().filter(b=>{const p=PROFILES[b.id]||{};return p.lat!==null&&p.lat!==undefined&&p.lng!==null&&p.lng!==undefined});
+function mapHtml(){
+  const all=computeBrews(),n=placed().length;
+  if(!n)return '<p class="lede">No places have a location yet.</p>';
+  const dot=(c,t)=>'<span class="lg"><i style="background:'+c+'"></i>'+t+'</span>';
+  return '<p class="lede">Tap a pin for the score and address.</p>'+
+    '<div id="map" class="mapbox" role="region" aria-label="Map of the breweries"><p class="note" style="padding:14px">Loading the map\u2026</p></div>'+
+    '<div class="legend">'+dot('#E7C566','Brewing on site')+dot('#BBA9FF','Does not qualify')+dot('#ABA69C','Closed')+'</div>'+
+    (n<all.length?'<p class="note">'+(all.length-n)+' of '+all.length+' places have no location yet.</p>':'');
+}
+function initMap(){
+  if(MAP){MAP.remove();MAP=null}
+  const el=document.getElementById('map');
+  if(!el)return;
+  const rows=placed();
+  loadLeaflet().then(L=>{
+    if(!document.getElementById('map')||document.getElementById('map')!==el)return;
+    el.innerHTML='';
+    MAP=L.map(el,{scrollWheelZoom:false,attributionControl:true});
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{
+      maxZoom:19,
+      attribution:'&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors'
+    }).addTo(MAP);
+    const pts=[];
+    rows.forEach(b=>{
+      const p=PROFILES[b.id],pt=[p.lat,p.lng];pts.push(pt);
+      const col=p.status==='closed'?'#ABA69C':p.qual===false?'#BBA9FF':'#E7C566';
+      const maps='https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(b.name+', '+p.addr);
+      L.circleMarker(pt,{radius:8,weight:2,color:'#2B2A29',fillColor:col,fillOpacity:.95}).addTo(MAP)
+        .bindPopup('<b>'+esc(b.name)+'</b><br>'+(b.rated?'Score <b>'+f2(b.overall)+'</b> (#'+b.rank+')':'Not rated yet')+
+          '<br><a href="'+esc(maps)+'" target="_blank" rel="noopener">'+esc(p.addr)+'</a>');
+    });
+    MAP.fitBounds(pts,{padding:[30,30],maxZoom:15});
+  }).catch(()=>{el.innerHTML='<p class="note" style="padding:14px">The map could not be loaded. Check your connection and try again.</p>'});
+}
+function renderBreweryList(seg){
   const byRating=(a,b)=>(a.rated!==b.rated?(a.rated?-1:1):0)||((b.overall||0)-(a.overall||0))||a.name.localeCompare(b.name,'de');
   const rows=computeBrews().sort(state.pord==='name'
     ?(a,b)=>a.name.localeCompare(b.name,'de')
@@ -861,7 +933,7 @@ function renderProfiles(){
       '<a class="addr" href="'+esc(maps)+'" target="_blank" rel="noopener">'+pin+'<span>'+esc(p.addr)+'</span></a>'+
       '<p class="hl">'+esc(p.line)+'</p>'+sparkline(b.id)+'</div></article>';
   }).join('');
-  return '<h1>Breweries</h1><p class="lede">'+rows.length+(SCOPE.all?' places visited on the Tour de Berlin Breweries.':' places on this season\u2019s Tour de Berlin Breweries.')+' The score is the group\u2019s overall rating; tap an address to open it in Maps.</p>'+
+  return '<h1>Breweries</h1>'+seg+'<p class="lede">'+rows.length+(SCOPE.all?' places visited on the Tour de Berlin Breweries.':' places on this season\u2019s Tour de Berlin Breweries.')+' The score is the group\u2019s overall rating; tap an address to open it in Maps.</p>'+
     chips([['rating','Top rated'],['trend','Trend'],['name','A to Z']],v=>state.pord===v,'data-bord')+cards;
 }
 
@@ -887,8 +959,10 @@ function banners(){
 function render(){
   if(!DB)return;
   updateProgress();
+  if(MAP){MAP.remove();MAP=null}
   document.getElementById('app').innerHTML=banners()+({winners:renderWinners,breweries:renderProfiles,tour:renderTour,people:renderPeople})[state.view]();
   ['winners','breweries','tour','people'].forEach(v=>{const n=document.getElementById('nav-'+v);if(v===state.view)n.setAttribute('aria-current','page');else n.removeAttribute('aria-current')});
+  if(state.view==='breweries'&&state.btab==='map')initMap();
 }
 const PTABS=['scores','favourites','attendance','consistency'];
 const TTABS=['ratings','today'];
@@ -902,7 +976,7 @@ function readHash(){
     state.view='tour';
     const t=h==='today'?'today':h.slice(5);
     if(TTABS.indexOf(t)>-1)state.ttab=t;
-  }else if(h==='breweries')state.view='breweries';
+  }else if(h==='breweries'||h==='breweries-map'){state.view='breweries';state.btab=h==='breweries-map'?'map':'list'}
   else state.view='winners';
 }
 function afterNav(){
@@ -936,6 +1010,7 @@ document.addEventListener('click',e=>{
     state.open.add(id);state.stage='all';state.focus=id;
     go('tour-ratings');return;
   }
+  if((el=t.closest('[data-btab]'))){go(el.getAttribute('data-btab')==='map'?'breweries-map':'breweries');return}
   if((el=t.closest('[data-ttab]'))){go('tour-'+el.getAttribute('data-ttab'));return}
   if((el=t.closest('[data-bord]'))){state.pord=el.getAttribute('data-bord');render();return}
   if((el=t.closest('[data-ptab]'))){go('people-'+el.getAttribute('data-ptab'));return}
