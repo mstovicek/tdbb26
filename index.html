@@ -164,7 +164,7 @@ td.detail{padding:4px 0 14px;background:transparent}
 .about a{color:var(--gold);text-decoration:underline;text-underline-offset:2px}
 .seg.two{grid-template-columns:repeat(2,1fr)}
 .win-hero{text-align:center;padding:8px 0 2px}
-.win-hero h1{margin:4px 0 2px;font-size:30px}
+.win-hero h1{margin:4px 0 2px;font-size:28px;line-height:1.1;text-wrap:balance}
 .win-hero .lede{margin:0}
 .trophy{width:46px;height:46px;fill:none;stroke:var(--gold);stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
 .sec{margin:26px 0 2px;font-size:19px;line-height:1.2;font-weight:700}
@@ -173,7 +173,7 @@ td.detail{padding:4px 0 14px;background:transparent}
 .regs li{display:flex;align-items:center;gap:12px;padding:10px 12px;background:var(--raise);border:1px solid var(--line);border-radius:12px;min-height:48px}
 .regs .rk{flex:none;width:28px;height:28px;font-size:14px}
 .regs .rk.gold{background:var(--gold);color:#2B2A29;border-color:var(--gold)}
-.regs .rn{flex:1;font-weight:700;font-size:17px}
+.regs .rn{flex:1;min-width:0;font-weight:700;font-size:17px;line-height:1.25}
 .regs .rs{text-align:right;line-height:1.25}
 .regs .rs b{display:block;color:var(--gold);font-weight:700}
 .regs .rs small{color:var(--muted);font-size:12px}
@@ -812,24 +812,28 @@ function renderWinners(){
   const brews=computeBrews();
   const rated=brews.filter(b=>b.rated);
   const people=computePeople(brews);
-  if(!rated.length)return '<h1>Winners</h1><p class="lede">No ratings yet.</p>';
+  if(!rated.length)return '<h1>Tour de Berlin Breweries</h1><p class="lede">No ratings yet.</p>';
   const openOnly=rated.filter(b=>!SCOPE.all||(PROFILES[b.id]||{}).elig!==false);
   const bg=topGroups(openOnly,b=>b.overall);
-  const regs=people.slice().sort((a,b)=>b.n-a.n||b.stagesAttended-a.stagesAttended||a.name.localeCompare(b.name,'de')).slice(0,5);
   const bStat=it=>'<b class="psc">'+f2(it.overall)+'</b><span class="pstat">beer '+f2(it.beer)+', service '+f2(it.svc)+', GL '+f2(it.gl)+'</span>';
-  let rr=0,pv=null;
-  const regList='<ol class="regs">'+regs.map((p,i)=>{
-    const k=p.n+p.stagesAttended/100;if(pv===null||Math.abs(k-pv)>1e-9){rr=i+1;pv=k}
-    return '<li><span class="rk'+(rr===1?' gold':'')+'">'+rr+'</span><span class="rn">'+esc(p.name)+'</span><span class="rs"><b>'+plural(p.n,'rating')+'</b><small>across '+plural(p.stagesAttended,SCOPE.unit)+'</small></span></li>';
-  }).join('')+'</ol>';
+  const byAtt=people.filter(p=>p.n>0).sort((a,b)=>b.n-a.n||b.stagesAttended-a.stagesAttended||a.name.localeCompare(b.name,'de'));
+  const places=[];
+  byAtt.forEach(p=>{
+    const last=places[places.length-1];
+    if(last&&last.n===p.n&&last.stagesAttended===p.stagesAttended)last.names.push(p.name);
+    else places.push({n:p.n,stagesAttended:p.stagesAttended,names:[p.name]});
+  });
+  const regList='<ol class="regs">'+places.slice(0,5).map((g,i)=>
+    '<li><span class="rk'+(i===0?' gold':'')+'">'+(i+1)+'</span><span class="rn">'+g.names.map(esc).join(' &amp; ')+'</span><span class="rs"><b>'+plural(g.n,'rating')+'</b><small>across '+plural(g.stagesAttended,SCOPE.unit)+'</small></span></li>'
+  ).join('')+'</ol>';
   const trophy='<svg class="trophy" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 4h8v5a4 4 0 0 1-8 0V4z"/><path d="M8 6H5.5a1 1 0 0 0-1 1c0 2 1.5 3.5 3.5 3.5"/><path d="M16 6h2.5a1 1 0 0 1 1 1c0 2-1.5 3.5-3.5 3.5"/><path d="M12 13v4"/><path d="M9.5 20h5"/></svg>';
   return '<div>'+
-    '<div class="win-hero">'+trophy+'<h1>Winners</h1><p class="lede">'+(SCOPE.all?'All seasons':'Season '+esc(SCOPE.label)+' results')+'</p></div>'+
+    '<div class="win-hero">'+trophy+'<h1>Tour de Berlin Breweries</h1><p class="lede">'+(SCOPE.all?'Results from all seasons':'Results for season '+esc(SCOPE.label))+'</p></div>'+
     '<div class="about"><b>TDBB</b> is the Tour de Berlin Breweries, the Berlin edition of <b>TDP</b>, <a href="https://www.tourdepivovar.cz/" target="_blank" rel="noopener">Tour de Pivovar</a> (pivovar is Czech for brewery), which started in Prague in 2012. We visit breweries in stages and score each one for beer, service and genius loci, the feel of the place. A brewery qualifies for the tour while it is still <b>brewing on site</b>, so places that no longer brew their own beer on the premises do not qualify. Closed places and those that do not qualify are left off the all-time Winners podium.</div>'+
     '<h2 class="sec">'+(SCOPE.all?'Breweries of all time':'Breweries of the year')+'</h2><p class="sec-sub">The three best overall scores'+(SCOPE.all?', among breweries that are open and qualify.':'.')+'</p>'+
     podium(bg,bStat,false)+'</div>'+
     moversHtml()+
-    '<h2 class="sec">The regulars</h2><p class="sec-sub">The top five people by breweries rated.</p>'+
+    '<h2 class="sec">The regulars</h2><p class="sec-sub">Five places for the people who show up and rate the most breweries. Ties share a place.</p>'+
     regList+
     '<p class="note">Breweries are ranked by overall score ('+wtext().replace(' and ',', ')+'). People are ranked by ratings given, then by '+(SCOPE.all?'seasons':'stages')+' attended. A tie shares the place.</p>';
 }
