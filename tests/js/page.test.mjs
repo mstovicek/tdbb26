@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { ratingsRows, renderPage, textOf } from './harness.mjs';
-import { TWIN_SCORES, mainBundle, regularsBundle, twinsBundle, twoSeasonPairBundle, withStage } from './fixtures.mjs';
+import { TWIN_SCORES, categoryTwinsBundle, mainBundle, regularsBundle, twinsBundle, twoSeasonPairBundle, withStage } from './fixtures.mjs';
 
 const page = (hash, search = '?year=all', extra = {}) => renderPage({ bundle: mainBundle(), hash, search, ...extra });
 const section = (html, from, to) => {
@@ -217,8 +217,8 @@ test('a season with no ratings says so instead of crashing', async () => {
 });
 
 // ---------------------------------------------------------------- voting twins
-const twins = async (bundle, search = '?year=2026') => {
-  const { html, text } = await renderPage({ bundle, hash: '#people-twins', search });
+const twins = async (bundle, search = '?year=2026', hash = '#people-twins') => {
+  const { html, text } = await renderPage({ bundle, hash, search });
   const rows = [...html.matchAll(/<li><span class="rk[^"]*">(\d)<\/span><span class="rn">([^<]*)<\/span><span class="rs"><b>([^<]*)<\/b><small>([^<]*)<\/small>/g)]
     .map(m => ({ place: m[1], who: textOf(m[2]), gap: m[3], detail: textOf(m[4]) }));
   return { rows, html, text };
@@ -286,4 +286,50 @@ test('Twins is the fifth People tab, and #people-twins opens it', async () => {
   const { html } = await renderPage({ bundle: twinsBundle(), hash: '#people-twins', search: '?year=2026' });
   assert.deepEqual([...html.matchAll(/data-ptab="(\w+)"/g)].map(m => m[1]), ['attendance', 'scores', 'favourites', 'consistency', 'twins']);
   assert.match(html, /data-ptab="twins" aria-selected="true"/);
+});
+
+// ---------------------------------------------------------------- twins per category
+const first = async hash => (await twins(categoryTwinsBundle(), '?year=2026', hash)).rows[0];
+
+test('Twins per category: each score has its own closest pair', async () => {
+  const beer = await first('#people-twins-beer');
+  assert.deepEqual([beer.who, beer.gap, beer.detail], ['Ann & Ben', '0.00 apart', 'same beer score 100% · 6 shared breweries']);
+  const service = await first('#people-twins-service');
+  assert.deepEqual([service.who, service.gap, service.detail], ['Cat & Dan', '0.00 apart', 'same service score 100% · 6 shared breweries']);
+  const gl = await first('#people-twins-gl');
+  assert.deepEqual([gl.who, gl.gap, gl.detail], ['Eve & Fay', '0.00 apart', 'same GL score 100% · 6 shared breweries']);
+});
+
+test('Twins per category: the overall view is not the same as any single category', async () => {
+  const { rows } = await twins(categoryTwinsBundle());
+  assert.deepEqual(rows.slice(1).map(r => [r.who, r.gap]), [['Eve & Fay', '1.11 apart'], ['Cat & Dan', '1.22 apart']]);
+});
+
+test('Twins per category: one score needs 4 shared breweries, the overall view only 3', async () => {
+  const overall = await twins(categoryTwinsBundle());
+  assert.equal(overall.rows[0].who, 'Xan & Yui');                       // 3 shared breweries
+  assert.match(overall.text, /at least 3 breweries in common/);
+  for (const kind of ['beer', 'service', 'gl']) {
+    const { rows, text } = await twins(categoryTwinsBundle(), '?year=2026', '#people-twins-' + kind);
+    assert.ok(!rows.some(r => r.who.includes('Xan')), kind + ': Xan & Yui share only 3 breweries');
+    assert.match(text, /at least 4 breweries in common/);
+  }
+});
+
+test('Twins per category: the chips, and the link decides which one is selected', async () => {
+  const chips = html => [...html.matchAll(/data-twin="(\w+)" aria-pressed="(\w+)"/g)].map(m => m[1] + ':' + m[2]);
+  const def = (await twins(categoryTwinsBundle())).html;
+  assert.deepEqual(chips(def), ['all:true', 'beer:false', 'service:false', 'gl:false']);
+  assert.deepEqual([...def.matchAll(/data-twin="\w+" aria-pressed="\w+">([^<]*)</g)].map(m => m[1]), ['Overall', 'Beer', 'Service', 'GL']);
+  assert.deepEqual(chips((await twins(categoryTwinsBundle(), '?year=2026', '#people-twins-service')).html), ['all:false', 'beer:false', 'service:true', 'gl:false']);
+  assert.deepEqual(chips((await twins(categoryTwinsBundle(), '?year=2026', '#people-twins-nonsense')).html), ['all:true', 'beer:false', 'service:false', 'gl:false']);
+});
+
+test('Twins per category: says so when a category has too few shared breweries', async () => {
+  const b = categoryTwinsBundle();
+  b.seasons['2026'].stages[0].stops = b.seasons['2026'].stages[0].stops.slice(0, 3);   // only 3 breweries: fine overall, not for one score
+  const beer = await twins(b, '?year=2026', '#people-twins-beer');
+  assert.equal(beer.rows.length, 0);
+  assert.match(beer.text, /Not enough shared ratings yet\. Two people need 4 breweries/);
+  assert.ok((await twins(b)).rows.length > 0);
 });

@@ -50,8 +50,12 @@ Bottom menu: Winners, Breweries, Tour, People.
 `computeTwins` finds the three groups of people whose scores are closest. Nothing is stored; it is derived from the
 ratings and follows the season selector.
 - A **visit** is a brewery in one season (so on All a repeat visit counts twice). Two people are compared on the visits both
-  rated. Their **gap** is the average number of points apart per score (beer, service, GL), pooled over all those scores.
+  rated. Their **gap** is the average number of points apart per score, pooled over all those scores.
   A pair needs at least `TWIN_MIN` (3) shared visits.
+- **Kinds** (`TWIN_KINDS`, chips under the tabs): Overall compares all three scores; Beer, Service and GL compare one score
+  each. One score matches by chance more easily, so those need `TWIN_MIN_ONE` (4) shared visits (with 3, "All" showed three
+  Jule pairs at a perfect 0.00 on three breweries each). The kind is part of the link: `#people-twins`, `#people-twins-beer`,
+  `#people-twins-service`, `#people-twins-gl`; an unknown suffix falls back to Overall.
 - Groups are built greedily: the closest remaining pair seeds a group, and anyone within `TWIN_SLACK` (0.10 points) of the
   seed's gap to **every** member joins (so a trio like Filip & Matouš & Zbynďa forms when all three are nearly as close as
   the leading pair). **Each person is in one group at most**, so the three rows are different people. `TWIN_PLACES` is 3.

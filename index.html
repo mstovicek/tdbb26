@@ -461,7 +461,7 @@ function prepare(){
 }
 
 const state={
-  view:'winners',ttab:'ratings',year:'all',pord:'rating',ptab:'attendance',stage:'all',cons:'distance',open:new Set(),focus:null,
+  view:'winners',ttab:'ratings',year:'all',pord:'rating',ptab:'attendance',twin:'all',stage:'all',cons:'distance',open:new Set(),focus:null,
   bsort:{key:'overall',dir:'desc'},
   psort:{
     scores:{key:'overall',dir:'desc'},
@@ -603,9 +603,13 @@ function who(p){
 }
 /* ---------- voting twins: the people whose scores are closest ---------- */
 const TWIN_MIN=3;          // a pair needs at least this many breweries (visits) that both rated
+const TWIN_MIN_ONE=4;      // ...and this many when only one score (beer, service or GL) is compared: a chance match is easier
 const TWIN_SLACK=.10;      // someone joins a group when they are within this many points of the leading pair
 const TWIN_PLACES=3;       // how many groups to show; each person appears in one group at most
-function computeTwins(brews){
+const TWIN_KINDS={all:{label:'Overall',dims:[0,1,2],what:'score'},beer:{label:'Beer',dims:[0],what:'beer score'},service:{label:'Service',dims:[1],what:'service score'},gl:{label:'GL',dims:[2],what:'GL score'}};
+const twinMin=kind=>TWIN_KINDS[kind].dims.length>1?TWIN_MIN:TWIN_MIN_ONE;
+function computeTwins(brews,kind){
+  const dims=TWIN_KINDS[kind||'all'].dims,minN=twinMin(kind||'all');
   const by={};             // person -> {brewery|season -> [beer,service,gl]}
   brews.filter(b=>b.rated).forEach(b=>b.ratings.forEach(r=>{(by[r.p]=by[r.p]||{})[b.id+'|'+r.sid]=r.v}));
   const names=Object.keys(by).sort((a,b)=>a.localeCompare(b,'de'));
@@ -616,9 +620,9 @@ function computeTwins(brews){
     Object.keys(A).forEach(k=>{
       if(!B[k])return;
       n++;
-      for(let c=0;c<3;c++){const d=Math.abs(A[k][c]-B[k][c]);diff+=d;if(d===0)same++}
+      dims.forEach(c=>{const d=Math.abs(A[k][c]-B[k][c]);diff+=d;if(d===0)same++});
     });
-    if(n>=TWIN_MIN)stat[key(names[i],names[j])]={a:names[i],b:names[j],n:n,diff:diff,same:same,gap:diff/(3*n)};
+    if(n>=minN)stat[key(names[i],names[j])]={a:names[i],b:names[j],n:n,diff:diff,same:same,gap:diff/(dims.length*n)};
   }
   const pair=(x,y)=>stat[key(x,y)];
   const EPS=1e-9;
@@ -642,20 +646,26 @@ function computeTwins(brews){
     }
     const ps=[];
     for(let i=0;i<grp.length;i++)for(let j=i+1;j<grp.length;j++)ps.push(pair(grp[i],grp[j]));
-    const items=ps.reduce((t,q)=>t+3*q.n,0);
+    const items=ps.reduce((t,q)=>t+dims.length*q.n,0);
     out.push({names:grp.slice().sort((a,b)=>a.localeCompare(b,'de')),gap:ps.reduce((t,q)=>t+q.diff,0)/items,same:Math.round(100*ps.reduce((t,q)=>t+q.same,0)/items),n:Math.min.apply(null,ps.map(q=>q.n))});
     grp.forEach(x=>used.add(x));
   }
   return out;
 }
 function renderTwins(){
-  const groups=computeTwins(computeBrews());
-  const head='<p class="lede">The people whose scores are closest. The gap is how many points apart they are, on average, on each score (beer, service and GL) at the breweries they both rated.</p>';
-  if(!groups.length)return head+'<p class="note">Not enough shared ratings yet. Two people need '+TWIN_MIN+' breweries that both rated.</p>';
+  const kind=TWIN_KINDS[state.twin]?state.twin:'all',k=TWIN_KINDS[kind];
+  const groups=computeTwins(computeBrews(),kind);
+  const chipRow='<div class="chips" role="group" aria-label="Compare on">'+Object.keys(TWIN_KINDS).map(v=>
+    '<button type="button" class="chip" data-twin="'+v+'" aria-pressed="'+(v===kind)+'">'+TWIN_KINDS[v].label+'</button>').join('')+'</div>';
+  const head=chipRow+'<p class="lede">'+(kind==='all'
+    ?'The people whose scores are closest. The gap is how many points apart they are, on average, on each score (beer, service and GL) at the breweries they both rated.'
+    :'The people whose '+k.what+'s are closest. The gap is how many points apart their '+k.what+'s are, on average, at the breweries they both rated.')+'</p>';
+  const min=twinMin(kind);
+  if(!groups.length)return head+'<p class="note">Not enough shared ratings yet. Two people need '+min+' breweries that both rated.</p>';
   return head+'<ol class="regs">'+groups.map((g,i)=>
     '<li><span class="rk'+(i===0?' gold':'')+'">'+(i+1)+'</span><span class="rn">'+g.names.map(esc).join(' &amp; ')+'</span>'+
-    '<span class="rs"><b>'+f2(g.gap)+' apart</b><small>same score '+g.same+'% \u00b7 '+(g.names.length>2?'at least ':'')+g.n+' shared breweries</small></span></li>').join('')+'</ol>'+
-    '<p class="note">A group of three or more forms when everyone is nearly as close as the leading pair. Each person appears in one group only, and a pair needs at least '+TWIN_MIN+' breweries in common.</p>';
+    '<span class="rs"><b>'+f2(g.gap)+' apart</b><small>same '+k.what+' '+g.same+'% \u00b7 '+(g.names.length>2?'at least ':'')+g.n+' shared breweries</small></span></li>').join('')+'</ol>'+
+    '<p class="note">A group of three or more forms when everyone is nearly as close as the leading pair. Each person appears in one group only, and a pair needs at least '+min+' breweries in common'+(kind==='all'?'':' (more than for the overall view, because one score matches by chance more easily)')+'.</p>';
 }
 function peopleNotes(people,showFew){
   return showFew?'<p class="note">Grey rows have fewer than '+MIN+' ratings. They are listed last and not highlighted.</p>':'';
@@ -979,13 +989,15 @@ function render(){
   ['winners','breweries','tour','people'].forEach(v=>{const n=document.getElementById('nav-'+v);if(v===state.view)n.setAttribute('aria-current','page');else n.removeAttribute('aria-current')});
 }
 const PTABS=['attendance','scores','favourites','consistency','twins'];
+const peopleHash=()=>'people-'+state.ptab+(state.ptab==='twins'&&state.twin!=='all'?'-'+state.twin:'');
 const TTABS=['ratings','agenda'];
 function readHash(){
   const h=location.hash.slice(1);
   if(h.indexOf('people')===0){
     state.view='people';
     const t=h.slice(7);
-    if(PTABS.indexOf(t)>-1)state.ptab=t;
+    if(t.indexOf('twins')===0){state.ptab='twins';const w=t.slice(6);state.twin=TWIN_KINDS[w]?w:'all'}
+    else if(PTABS.indexOf(t)>-1)state.ptab=t;
   }else if(h.indexOf('tour')===0||h==='today'||h==='agenda'){
     state.view='tour';
     let t=(h==='today'||h==='agenda')?'agenda':h.slice(5);
@@ -1018,7 +1030,7 @@ document.addEventListener('click',e=>{
   }
   if((el=t.closest('[data-nav]'))){
     const v=el.getAttribute('data-nav');
-    go(v==='people'?'people-'+state.ptab:(v==='tour'?'tour-'+state.ttab:v));return;
+    go(v==='people'?peopleHash():(v==='tour'?'tour-'+state.ttab:v));return;
   }
   if((el=t.closest('[data-goto]'))){
     const id=el.getAttribute('data-goto');
@@ -1027,7 +1039,8 @@ document.addEventListener('click',e=>{
   }
   if((el=t.closest('[data-ttab]'))){go('tour-'+el.getAttribute('data-ttab'));return}
   if((el=t.closest('[data-bord]'))){state.pord=el.getAttribute('data-bord');render();return}
-  if((el=t.closest('[data-ptab]'))){go('people-'+el.getAttribute('data-ptab'));return}
+  if((el=t.closest('[data-ptab]'))){state.twin=state.twin||'all';go('people-'+el.getAttribute('data-ptab')+(el.getAttribute('data-ptab')==='twins'&&state.twin!=='all'?'-'+state.twin:''));return}
+  if((el=t.closest('[data-twin]'))){const w=el.getAttribute('data-twin');go('people-twins'+(w==='all'?'':'-'+w));return}
   if((el=t.closest('[data-stage]'))){
     const v=el.getAttribute('data-stage');
     state.stage=v==='all'?'all':Number(v);render();return;

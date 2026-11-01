@@ -117,3 +117,17 @@ export function twoSeasonPairBundle() {
   b.people.people = { xan: { name: 'Xan' }, yui: { name: 'Yui' } };
   return b;
 }
+
+/**
+ * For the twins per category. Each person follows one of six very different score patterns per category:
+ *   beer: Ann = Ben (identical)   service: Cat = Dan (identical)   GL: Eve = Fay (identical)
+ * so each category has its own perfect pair, while overall nobody is that close. Xan and Yui are identical on
+ * everything but only share 3 breweries: enough for the overall view (3), not for a single category (4).
+ */
+const PATTERN = [[0, 0, 0, 0, 0, 0], [0, 1, 2, 3, 4, 5], [0, 2, 4, 0, 2, 4], [0, 3, 0, 3, 0, 3], [0, 4, 2, 0, 4, 2], [0, 5, 4, 3, 2, 1]];
+const WHICH = { Ann: [1, 0, 0], Ben: [1, 2, 2], Cat: [0, 1, 3], Dan: [2, 1, 5], Eve: [3, 3, 1], Fay: [5, 5, 1] };   // [beer, service, GL] pattern per person
+export function categoryTwinsBundle() {
+  const scores = Object.fromEntries(Object.entries(WHICH).map(([n, w]) => [n, [0, 1, 2, 3, 4, 5].map(i => w.map(p => PATTERN[p][i]).join(''))]));
+  scores.Xan = scores.Yui = [0, 1, 2].map(i => String(PATTERN[4][i]).repeat(3));
+  return twinsBundle(scores);
+}
