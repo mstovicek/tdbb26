@@ -55,6 +55,7 @@ Only `name`. There are no aliases: one person, one name.
   A brewery **qualifies** for the tour when `brewsOnSite` is not `false`; `status` does not affect this, so a closed
   brewery that used to brew on site still qualifies. Breweries that do not qualify, and closed ones, stay in every season
   ranking; the page leaves them out of the all-time Winners podium and the Biggest movers list.
+- `district` is optional: the Berlin district or neighbourhood (Friedrichshain, Mitte, Kreuzberg), shown before the address.
 - `highlight` is one sentence for the Breweries page. Keep it to lasting facts about the place. Do not put scores,
   opening hours, or anything the other fields already express (closed, no longer qualifies) in it: those go stale, and
   the page shows `status` and `brewsOnSite` as badges by itself.
@@ -74,6 +75,8 @@ Only `name`. There are no aliases: one person, one name.
 ```
 
 - `id` must equal the file name. `label` is `YYYY/YYYY` or a single year like `2027`.
+- A **planned stage with no agenda yet** is `{"date": "2027-05-15", "stops": []}`; the Agenda tab then shows the date
+  with placeholders. With no upcoming stage at all, the Agenda tab shows "date to be announced" placeholders.
 - A **stage** is one tour day: `date` is `YYYY-MM-DD`. Stages go oldest first. Stage and stop numbers are
   their position in the list, so nothing else stores order.
 - A **stop** is one brewery visit. A brewery appears at most once per season.
@@ -89,4 +92,5 @@ Only `name`. There are no aliases: one person, one name.
 - One season selected: the ranking is that season's. **All**: a brewery's score is the average of every rating it
   ever got, and a person's score is the average of all their ratings. Seasons with more raters weigh more.
 - Overall = weights applied to the three averages.
-- Today tab: the stage dated today, otherwise the next upcoming stage, otherwise the latest.
+- Agenda tab (the Tour page): the stage dated today, otherwise the next upcoming stage. With none in the latest season it
+  shows placeholders; an older season selected shows its last stage.

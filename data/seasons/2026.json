@@ -99,10 +99,14 @@
      "ratings": {
       "ines": {"beer": 4, "service": 4, "gl": 4},
       "milan": {"beer": 5, "service": 4, "gl": 5},
-      "tim": {"beer": 4, "service": 3, "gl": 4},
+      "tim": {"beer": 4, "service": 4, "gl": 4},
       "diogo": {"beer": 5, "service": 3, "gl": 4},
       "dani": {"beer": 3, "service": 4, "gl": 5},
-      "gokul": {"beer": 4, "service": 4, "gl": 4}
+      "gokul": {"beer": 4, "service": 4, "gl": 4},
+      "jakub": {"beer": 3, "service": 4, "gl": 2},
+      "filip": {"beer": 4, "service": 2, "gl": 4},
+      "lucka": {"beer": 3, "service": 3, "gl": 3},
+      "pepa": {"beer": 3, "service": 2, "gl": 2}
      }
     },
     {

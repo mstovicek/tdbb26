@@ -120,7 +120,9 @@ def check_breweries(b, path):
             err('%s: brewery "%s" status must be "open" or "closed"' % (path, bid))
         if 'brewsOnSite' in v and not isinstance(v['brewsOnSite'], bool):
             err('%s: brewery "%s" brewsOnSite must be true or false' % (path, bid))
-        extra = set(v) - {'name', 'address', 'highlight', 'status', 'brewsOnSite'}
+        if 'district' in v and (not isinstance(v['district'], str) or not v['district'].strip()):
+            err('%s: brewery "%s" district must be non-empty text' % (path, bid))
+        extra = set(v) - {'name', 'address', 'district', 'highlight', 'status', 'brewsOnSite'}
         if extra:
             err('%s: brewery "%s" has unknown fields %s' % (path, bid, sorted(extra)))
         if isinstance(v.get('name'), str):
@@ -163,8 +165,8 @@ def check_season(sid, season, path, people, breweries, used_people, used_breweri
                 err('%s: stage dates must be in order, oldest first' % where)
             prev = d
         stops = st.get('stops') if isinstance(st, dict) else None
-        if not isinstance(stops, list) or not stops:
-            err('%s: "stops" must be a non-empty list' % where)
+        if not isinstance(stops, list):
+            err('%s: "stops" must be a list (empty for a stage that is planned but has no agenda yet)' % where)
             continue
         for pi, sp in enumerate(stops, 1):
             w = '%s stop %d' % (where, pi)

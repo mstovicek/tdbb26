@@ -9,6 +9,7 @@
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 64 64%22%3E%3Crect width=%2264%22 height=%2264%22 rx=%2214%22 fill=%22%23353433%22/%3E%3Cpath d=%22M17 24h24v24a5 5 0 0 1-5 5H22a5 5 0 0 1-5-5z%22 fill=%22%23E7C566%22/%3E%3Cpath d=%22M41 28h4a6 6 0 0 1 6 6v3a6 6 0 0 1-6 6h-4%22 fill=%22none%22 stroke=%22%23E7C566%22 stroke-width=%225%22/%3E%3Cpath d=%22M15 25a6 6 0 0 1 5-9 7 7 0 0 1 13-2 7 7 0 0 1 10 5 5 5 0 0 1-2 6z%22 fill=%22%23FBEBD3%22/%3E%3Cpath d=%22M24 31v16M31 31v16%22 stroke=%22%23353433%22 stroke-width=%223%22 stroke-linecap=%22round%22 opacity=%22.35%22/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bungee&text=TDBB&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700;900&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -37,10 +38,8 @@ button{font:inherit;color:inherit}
 /* top bar */
 .top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;height:var(--hh);background:var(--bg)}
 .top .wrap{height:100%;display:flex;align-items:center;justify-content:space-between}
-.logo{
-  font-weight:900;font-size:28px;line-height:1;letter-spacing:-.5px;color:var(--gold);
-  text-shadow:1px 1px 0 #1d1c1b,2px 2px 0 #1d1c1b,3px 3px 0 #1d1c1b;
-}
+.logo{line-height:0}
+.logo svg{display:block;height:40px;width:auto;overflow:visible}
 
 /* page heads */
 h1{margin:6px 0 2px;font-size:24px;line-height:1.2;font-weight:700}
@@ -144,6 +143,8 @@ td.detail{padding:4px 0 14px;background:transparent}
 .stop.now .big{box-shadow:0 0 0 3px var(--bg),0 0 0 5px var(--gold)}
 .stop.done .big{background:var(--raise);color:var(--muted)}
 .stop.done h2,.stop.done .when{opacity:.65}
+.stop.ph .big{background:transparent;border:2px dashed var(--line);color:var(--muted)}
+.stop.ph h2,.stop.ph .when{color:var(--muted);font-weight:500}
 .when{display:flex;align-items:center;gap:8px;min-height:22px;color:var(--gold);font-size:14px;font-weight:500;font-variant-numeric:tabular-nums}
 .stop h2{margin:1px 0 8px;font-size:19px;line-height:1.2;font-weight:700}
 .tag{padding:1px 9px;border-radius:999px;font-size:12px;font-weight:600;border:1px solid var(--muted);color:var(--muted)}
@@ -166,7 +167,11 @@ td.detail{padding:4px 0 14px;background:transparent}
 .win-hero{text-align:center;padding:8px 0 2px}
 .win-hero h1{margin:4px 0 2px;font-size:28px;line-height:1.1;text-wrap:balance}
 .win-hero .lede{margin:0}
-.trophy{width:46px;height:46px;fill:none;stroke:var(--gold);stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.nextstage{display:grid;grid-template-columns:1fr auto;column-gap:12px;align-items:center;margin:14px 0 0;padding:14px 16px;border:1px solid var(--gold);border-radius:14px;background:rgba(231,197,102,.1)}
+.ns-tag{grid-column:1;color:var(--gold);font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
+.ns-date{grid-column:1;margin-top:2px;font-size:19px;line-height:1.2;font-weight:700}
+.ns-sub{grid-column:1;margin-top:2px;color:var(--muted);font-size:14px}
+.nextstage .btn{grid-column:2;grid-row:1 / span 3;margin:0}
 .sec{margin:26px 0 2px;font-size:19px;line-height:1.2;font-weight:700}
 .sec-sub{margin:0 0 14px;color:var(--muted);font-size:14px}
 .regs{list-style:none;margin:0;padding:0;display:grid;gap:8px}
@@ -213,6 +218,7 @@ td.detail{padding:4px 0 14px;background:transparent}
 .cr b{font-weight:700;font-size:15px}
 .cr small{margin-left:2px;color:var(--muted);font-size:12px}
 .addr{display:inline-flex;align-items:flex-start;gap:5px;margin-top:5px;padding:3px 0;color:var(--muted);font-size:13px;line-height:1.3;text-decoration:none}
+.addr .dist{color:var(--text);font-weight:600}
 .addr:hover span,.addr:focus-visible span{text-decoration:underline}
 .pin{width:15px;height:15px;flex:0 0 auto;margin-top:1px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
 .hl{margin:4px 0 0;font-size:14.5px;line-height:1.4}
@@ -253,7 +259,7 @@ td.detail{padding:4px 0 14px;background:transparent}
 <body>
 <header class="top">
   <div class="wrap">
-    <div class="logo" aria-label="TDBB, Tour de Berlin Breweries">TDBB</div>
+    <div class="logo"><svg viewBox="0 0 132 42" role="img" aria-label="TDBB, Tour de Berlin Breweries"><defs><text id="lg" x="9" y="31" font-family="Bungee,Barlow,sans-serif" font-size="31" letter-spacing="3">TDBB</text><clipPath id="lgc"><use href="#lg"/></clipPath></defs><use href="#lg" x="-0.45" y="0.45" fill="#E7C566" stroke="#E7C566" stroke-width=".6" stroke-linejoin="round"/><use href="#lg" x="-0.90" y="0.90" fill="#E7C566" stroke="#E7C566" stroke-width=".6" stroke-linejoin="round"/><use href="#lg" x="-1.35" y="1.35" fill="#E7C566" stroke="#E7C566" stroke-width=".6" stroke-linejoin="round"/><use href="#lg" x="-1.80" y="1.80" fill="#E7C566" stroke="#E7C566" stroke-width=".6" stroke-linejoin="round"/><use href="#lg" x="-2.25" y="2.25" fill="#E7C566" stroke="#E7C566" stroke-width=".6" stroke-linejoin="round"/><use href="#lg" x="-2.70" y="2.70" fill="#E7C566" stroke="#E7C566" stroke-width=".6" stroke-linejoin="round"/><use href="#lg" fill="#353433"/><g clip-path="url(#lgc)" fill="none" stroke-linejoin="round"><use href="#lg" stroke="#a08c55" stroke-width="4"/><use href="#lg" stroke="#353433" stroke-width="2.8"/></g><use href="#lg" fill="none" stroke="#a08c55" stroke-width=".7" stroke-linejoin="round"/></svg></div>
     <div class="hr"><span class="prog" id="progress"></span><label class="yrsel"><select data-year aria-label="Season"></select></label></div>
   </div>
 </header>
@@ -379,7 +385,7 @@ function buildModel(year){
   PROFILES={};
   Object.keys(DB.breweries.breweries||{}).forEach(id=>{
     const b=DB.breweries.breweries[id];
-    PROFILES[id]={addr:b.address||'',line:b.highlight||'',status:b.status||'open',qual:b.brewsOnSite!==false,elig:b.brewsOnSite!==false&&(b.status||'open')==='open'};
+    PROFILES[id]={addr:b.address||'',line:b.highlight||'',district:b.district||'',status:b.status||'open',qual:b.brewsOnSite!==false,elig:b.brewsOnSite!==false&&(b.status||'open')==='open'};
   });
   STAGES=[];BREWERIES=[];
   if(year!=='all'&&DB.seasons[year]){
@@ -387,6 +393,7 @@ function buildModel(year){
     SCOPE={all:false,label:s.label,unit:'stage'};
     (s.stages||[]).forEach((stg,i)=>{
       const stops=validStops(stg,year);
+      if(!stops.length)return;   // a planned stage without an agenda yet
       let rs=0;
       stops.forEach((sp,j)=>{
         const ents=entries(sp.ratings,year,i+1,sp.brewery);
@@ -417,12 +424,16 @@ function buildModel(year){
 }
 function pickAgenda(sid){
   const s=sid&&DB.seasons[sid];
-  if(!s||!(s.stages||[]).length)return null;
+  const stages=(s&&s.stages)||[];
+  const ids=seasonIds(),latest=ids.length?ids[ids.length-1]:null;
   const today=isoToday();
-  let idx=s.stages.findIndex(st=>st.date===today);
-  if(idx<0)idx=s.stages.findIndex(st=>st.date>today);
-  if(idx<0)idx=s.stages.length-1;
-  const st=s.stages[idx];
+  let idx=stages.findIndex(st=>st.date===today);
+  if(idx<0)idx=stages.findIndex(st=>st.date>today);
+  if(idx<0){
+    if(!stages.length||sid===latest)return null;   // nothing planned: the Agenda tab shows placeholders
+    idx=stages.length-1;                              // an older season: show its last stage
+  }
+  const st=stages[idx];
   return {
     date:st.date,label:fmtLong(st.date),stageNo:idx+1,sid:sid,
     stops:validStops(st,sid).map(sp=>({brewery:sp.brewery,start:sp.start,end:sp.end,travel:sp.travel,note:sp.note,ratings:entries(sp.ratings,sid,idx+1,sp.brewery)}))
@@ -448,7 +459,7 @@ function prepare(){
 }
 
 const state={
-  view:'winners',ttab:'ratings',year:'all',pord:'rating',ptab:'scores',stage:'all',cons:'distance',open:new Set(),focus:null,
+  view:'winners',ttab:'ratings',year:'all',pord:'rating',ptab:'attendance',stage:'all',cons:'distance',open:new Set(),focus:null,
   bsort:{key:'overall',dir:'desc'},
   psort:{
     scores:{key:'overall',dir:'desc'},
@@ -688,7 +699,7 @@ function renderFavourites(people){
 }
 function renderPeople(){
   const people=computePeople(computeBrews());
-  const tabs=[['scores','Scores'],['favourites','Favourites'],['attendance','Attendance'],['consistency','Consistency']];
+  const tabs=[['attendance','Attendance'],['scores','Scores'],['favourites','Favourites'],['consistency','Consistency']];
   const seg='<div class="seg" role="tablist" aria-label="People views">'+tabs.map(t=>
     '<button type="button" role="tab" data-ptab="'+t[0]+'" aria-selected="'+(state.ptab===t[0])+'">'+t[1]+'</button>').join('')+'</div>';
   let inner;
@@ -709,8 +720,15 @@ function stopStats(ents){
   const m=[0,1,2].map(i=>mean(ents.map(r=>r.v[i])));
   return {n:n,rated:true,overall:wsum(m)};
 }
-function renderToday(){
-  if(!AGENDA||!AGENDA.stops.length)return '<p class="lede">No agenda yet.</p>';
+function agendaPlaceholder(a){
+  const rows=[1,2,3].map(n=>'<li class="stop ph"><div class="big">'+n+'</div><div><div class="when">Time to be announced</div><h2>Brewery to be announced</h2></div></li>').join('');
+  return '<p class="lede">'+(a?esc(a.label)+'. Stage '+a.stageNo+'. The agenda has not been planned yet.':'The next stage has not been planned yet. Its date and stops will show up here as soon as they are set.')+'</p>'+
+    '<ol class="tour">'+rows+'</ol>'+
+    '<p class="note">Placeholders until the plan is ready.</p>'+
+    '<p><button type="button" class="btn" style="margin-left:0" data-ttab="ratings">See the latest scores</button></p>';
+}
+function renderAgenda(){
+  if(!AGENDA||!AGENDA.stops.length)return agendaPlaceholder(AGENDA);
   const d=new Date();
   const isToday=AGENDA.date===isoToday();
   const mins=d.getHours()*60+d.getMinutes();
@@ -808,6 +826,23 @@ function moversHtml(){
     '<ol class="regs">'+m.map((x,i)=>'<li><span class="rk'+(i===0?' gold':'')+'">'+(i+1)+'</span><span class="rn">'+esc(x.name)+'</span>'+
       '<span class="rs"><b>+'+f2(x.d)+'</b><small>'+f2(x.from.overall)+' \u2192 '+f2(x.to.overall)+'</small></span></li>').join('')+'</ol>';
 }
+function nextStage(){
+  const ids=seasonIds();
+  if(!ids.length)return null;
+  const sid=ids[ids.length-1],stages=DB.seasons[sid].stages||[];
+  const today=isoToday();
+  const st=stages.find(x=>x.date>=today);
+  if(!st)return null;
+  const stops=validStops(st,sid);
+  return {label:fmtLong(st.date),today:st.date===today,n:stops.length,start:(stops[0]&&stops[0].start)||''};
+}
+function nextBanner(){
+  const n=nextStage();
+  if(!n)return '';
+  return '<div class="nextstage"><div class="ns-tag">'+(n.today?'Today':'Next stage')+'</div><div class="ns-date">'+esc(n.label)+'</div>'+
+    '<div class="ns-sub">'+(n.n?plural(n.n,'stop')+(n.start?', starting at '+n.start:''):'Agenda to be announced')+'</div>'+
+    '<button type="button" class="btn" data-ttab="agenda">See the agenda</button></div>';
+}
 function renderWinners(){
   const brews=computeBrews();
   const rated=brews.filter(b=>b.rated);
@@ -826,10 +861,10 @@ function renderWinners(){
   const regList='<ol class="regs">'+places.slice(0,5).map((g,i)=>
     '<li><span class="rk'+(i===0?' gold':'')+'">'+(i+1)+'</span><span class="rn">'+g.names.map(esc).join(' &amp; ')+'</span><span class="rs"><b>'+plural(g.n,'rating')+'</b><small>across '+plural(g.stagesAttended,SCOPE.unit)+'</small></span></li>'
   ).join('')+'</ol>';
-  const trophy='<svg class="trophy" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 4h8v5a4 4 0 0 1-8 0V4z"/><path d="M8 6H5.5a1 1 0 0 0-1 1c0 2 1.5 3.5 3.5 3.5"/><path d="M16 6h2.5a1 1 0 0 1 1 1c0 2-1.5 3.5-3.5 3.5"/><path d="M12 13v4"/><path d="M9.5 20h5"/></svg>';
   return '<div>'+
-    '<div class="win-hero">'+trophy+'<h1>Tour de Berlin Breweries</h1><p class="lede">'+(SCOPE.all?'Results from all seasons':'Results for season '+esc(SCOPE.label))+'</p></div>'+
-    '<div class="about"><b>TDBB</b> is the Tour de Berlin Breweries, the Berlin edition of <b>TDP</b>, <a href="https://www.tourdepivovar.cz/" target="_blank" rel="noopener">Tour de Pivovar</a> (pivovar is Czech for brewery), which started in Prague in 2013. We visit breweries in stages and score each one for beer, service and genius loci, the feel of the place. A brewery qualifies for the tour while it is still <b>brewing on site</b>, so places that no longer brew their own beer on the premises do not qualify. Closed places and those that do not qualify are left off the all-time Winners podium.</div>'+
+    '<div class="win-hero"><h1>Tour de Berlin Breweries</h1><p class="lede">'+(SCOPE.all?'Results from all seasons':'Results for season '+esc(SCOPE.label))+'</p></div>'+
+    nextBanner()+
+    '<div class="about"><b>TDBB</b> is the Tour de Berlin Breweries, the Berlin edition of <b>TDP</b>, <a href="https://www.tourdepivovar.cz/" target="_blank" rel="noopener">Tour de Pivovar</a> (pivovar is Czech for brewery), which started in Prague in 2013. TDBB has been running since 2024. We visit breweries in stages and score each one for beer, service and genius loci, the feel of the place. A brewery qualifies for the tour while it is still <b>brewing on site</b>, so places that no longer brew their own beer on the premises do not qualify. Closed places and those that do not qualify are left off the all-time Winners podium.</div>'+
     '<h2 class="sec">'+(SCOPE.all?'Breweries of all time':'Breweries of the year')+'</h2><p class="sec-sub">The three best overall scores'+(SCOPE.all?', among breweries that are open and qualify.':'.')+'</p>'+
     podium(bg,bStat,false)+'</div>'+
     moversHtml()+
@@ -840,17 +875,11 @@ function renderWinners(){
 
 /* ---------- brewery profiles ---------- */
 const initials=n=>{const w=n.replace(/&/g,' ').split(/[\s-]+/).filter(Boolean);return (w.length>1?w[0][0]+w[1][0]:w[0].slice(0,2)).toUpperCase()};
-function trendDelta(id){
-  const h=HISTORY[id]||[];
-  return h.length<2?null:h[h.length-1].overall-h[h.length-2].overall;
-}
 function renderProfiles(){
   const byRating=(a,b)=>(a.rated!==b.rated?(a.rated?-1:1):0)||((b.overall||0)-(a.overall||0))||a.name.localeCompare(b.name,'de');
   const rows=computeBrews().sort(state.pord==='name'
     ?(a,b)=>a.name.localeCompare(b.name,'de')
-    :state.pord==='trend'
-    ?(a,b)=>{const x=trendDelta(a.id),y=trendDelta(b.id);return (x===null)-(y===null)||(x!==null?y-x:0)||byRating(a,b)}
-    :(a,b)=>(a.rated!==b.rated?(a.rated?-1:1):0)||((b.overall||0)-(a.overall||0))||a.name.localeCompare(b.name,'de'));
+    :byRating);
   const pin='<svg class="pin" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.4"/></svg>';
   const cards=rows.map(b=>{
     const p=PROFILES[b.id]||{addr:'',line:''};
@@ -858,19 +887,19 @@ function renderProfiles(){
     const maps='https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(b.name+', '+p.addr);
     return '<article class="card"><div class="pic">'+pic+'</div><div><div class="ch"><h2>'+esc(b.name)+(p.status==='closed'?'<span class="tagc">Closed</span>':'')+(p.qual===false?'<span class="tagc tagq" title="No longer brewing on site, so it is off the tour">Doesn\u2019t qualify</span>':'')+'</h2>'+
       '<div class="cr">'+STARSVG+'<b>'+(b.rated?f2(b.overall):'\u2013')+'</b>'+(b.rated?'<small>#'+b.rank+'</small>':'')+'</div></div>'+
-      '<a class="addr" href="'+esc(maps)+'" target="_blank" rel="noopener">'+pin+'<span>'+esc(p.addr)+'</span></a>'+
-      '<p class="hl">'+esc(p.line)+'</p>'+sparkline(b.id)+'</div></article>';
+      '<a class="addr" href="'+esc(maps)+'" target="_blank" rel="noopener">'+pin+'<span>'+(p.district?'<b class="dist">'+esc(p.district)+'</b> \u00b7 ':'')+esc(p.addr)+'</span></a>'+
+      '<p class="hl">'+esc(p.line)+'</p>'+(SCOPE.all?sparkline(b.id):'')+'</div></article>';
   }).join('');
   return '<h1>Breweries</h1><p class="lede">'+rows.length+(SCOPE.all?' places visited on the Tour de Berlin Breweries.':' places on this season\u2019s Tour de Berlin Breweries.')+' The score is the group\u2019s overall rating; tap an address to open it in Maps.</p>'+
-    chips([['rating','Top rated'],['trend','Trend'],['name','A to Z']],v=>state.pord===v,'data-bord')+cards;
+    chips([['rating','Top rated'],['name','A to Z']],v=>state.pord===v,'data-bord')+cards;
 }
 
 /* ---------- tour ---------- */
 function renderTour(){
-  const tabs=[['ratings','Ratings'],['today','Today']];
+  const tabs=[['ratings','Ratings'],['agenda','Agenda']];
   const seg='<div class="seg two" role="tablist" aria-label="Tour views">'+tabs.map(t=>
     '<button type="button" role="tab" data-ttab="'+t[0]+'" aria-selected="'+(state.ttab===t[0])+'">'+t[1]+'</button>').join('')+'</div>';
-  return '<h1>Tour</h1>'+seg+(state.ttab==='today'?renderToday():renderBreweries());
+  return '<h1>Tour</h1>'+seg+(state.ttab==='agenda'?renderAgenda():renderBreweries());
 }
 
 /* ---------- shell ---------- */
@@ -890,17 +919,18 @@ function render(){
   document.getElementById('app').innerHTML=banners()+({winners:renderWinners,breweries:renderProfiles,tour:renderTour,people:renderPeople})[state.view]();
   ['winners','breweries','tour','people'].forEach(v=>{const n=document.getElementById('nav-'+v);if(v===state.view)n.setAttribute('aria-current','page');else n.removeAttribute('aria-current')});
 }
-const PTABS=['scores','favourites','attendance','consistency'];
-const TTABS=['ratings','today'];
+const PTABS=['attendance','scores','favourites','consistency'];
+const TTABS=['ratings','agenda'];
 function readHash(){
   const h=location.hash.slice(1);
   if(h.indexOf('people')===0){
     state.view='people';
     const t=h.slice(7);
     if(PTABS.indexOf(t)>-1)state.ptab=t;
-  }else if(h.indexOf('tour')===0||h==='today'){
+  }else if(h.indexOf('tour')===0||h==='today'||h==='agenda'){
     state.view='tour';
-    const t=h==='today'?'today':h.slice(5);
+    let t=(h==='today'||h==='agenda')?'agenda':h.slice(5);
+    if(t==='today')t='agenda';
     if(TTABS.indexOf(t)>-1)state.ttab=t;
   }else if(h==='breweries')state.view='breweries';
   else state.view='winners';
@@ -976,7 +1006,7 @@ async function start(){
   render();
 }
 start();
-setInterval(()=>{if(state.view==='tour'&&state.ttab==='today')render()},60000);
+setInterval(()=>{if(state.view==='tour'&&state.ttab==='agenda')render()},60000);
 document.addEventListener('change',e=>{
   if(DB&&e.target&&e.target.matches&&e.target.matches('select[data-year]')){
     state.year=e.target.value;state.open=new Set();state.stage='all';

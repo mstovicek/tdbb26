@@ -54,7 +54,7 @@ Scripts (Python 3, standard library only), run from the repo root:
   ("Pflegeberg" → Schankhalle Pfefferberg?).
 - **New person:** only after the user says so. Make the id (lowercase ASCII letters, one word), keep accents in
   `name`, add to `people.json`. If the id already exists for someone else, ask.
-- **New brewery:** ask for the address, write a one-sentence highlight for the user to approve (no scores, no opening hours, no closed or qualification wording), set
+- **New brewery:** ask for the address and the district, write a one-sentence highlight for the user to approve (no scores, no opening hours, no closed or qualification wording), set
   `status` to `open`, add to `breweries.json`. Ask whether it brews on site; if not, add `"brewsOnSite": false`.
 - **A brewery closes or stops brewing on site:** set `status` to `closed`, or `brewsOnSite` to `false`. These are separate:
   a closed brewery that used to brew on site still qualifies. Do not edit its highlight to say so; the page shows badges.
@@ -67,14 +67,21 @@ say so in the echo table. Anything outside 0 to 5, or not a number, is a questio
 
 ## Where ratings go
 
-- Normally into the stage whose date is today, else the latest stage. If it is unclear which date a new stage has, ask.
+- Normally into the stage whose date is today, else the most recent stage that is **not in the future**. Never put ratings
+  into a planned future stage. If it is unclear which date a new stage has, ask.
 - Brewery already in that stage: add the ratings to its stop. Not yet: append a stop at the end of the stage.
 - **Late ratings** (someone rates a brewery after the day): put them in that brewery's original stop and say which stage.
 - **A person already rated that stop:** this is a correction. Show old → new and get an OK.
 - **Plan changes** ("Marcus first, Lemke second"): reorder the stops. Times and notes stay with their slot unless the
   user says otherwise. `note` is short text such as "Table booked for 20:00". Never store reservation numbers.
 - **New season:** id is the end year, `label` is `YYYY/YYYY` (or one year). Create `seasons/<id>.json`, append the id to
-  `manifest.json` (oldest first). Ask for the first stage date.
+  `manifest.json` (oldest first). Ask for the first stage date. The new season becomes the page's default season at once,
+  so plan its first stage (below) in the same change, or visitors land on an empty season.
+- **Planning the next stage:** append `{"date": "YYYY-MM-DD", "stops": [...]}` to the latest season, stops with `brewery`,
+  `start`, `end`, `travel`, `note` and `"ratings": {}`. Only the date is known? Use `"stops": []`. The page then shows a
+  "Next stage" banner on the front page and the Agenda tab with the date (and placeholders for missing stops). With no
+  upcoming stage the Agenda tab shows "to be announced" placeholders, so never invent a plan. A stage keeps its place
+  after its date; ratings then go into it as usual.
 
 ## Writing the files
 
