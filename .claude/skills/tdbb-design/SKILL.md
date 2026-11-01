@@ -21,14 +21,30 @@ One file, no libraries, no build step. Inside the `<script>`:
    (each with a `ratings` list of `{p, v:[beer,service,gl], st, sid}`), `PROFILES`, `AGENDA` and `SCOPE`.
    One season selected: breweries are that season's stops. **All**: breweries are pooled, "stages" become seasons.
    Bad rows (unknown id, score not an integer 0 to 5) are skipped with a warning banner.
+   `PROFILES[id]` carries `qual` (`brewsOnSite` is not `false`) and `elig` (`qual` and `status` open). `buildHistory`
+   fills `HISTORY[id]`: each brewery's overall score per season it was rated, **whatever season is selected**, so
+   trends work in every view.
 3. **Calculations** (`computeBrews`, `computePeople`). All averages, ranks, deviations and favourites are worked out
    here from the ratings. Weights come from `manifest.json`. Nothing derived is ever stored in the data.
-4. **Views.** `renderWinners`, `renderProfiles` (Breweries), `renderTour` → `renderBreweries` (Ratings) and
+   Trends are derived too: `sparkline` and `trendDelta` (last season against the one before it) and `movers`
+   (biggest improvements of the selected season, or the latest on All, against each brewery's previous rated season).
+4. **Views.** `renderWinners` (podium of the three best breweries, **Biggest movers**, top five regulars),
+   `renderProfiles` (Breweries: sort Top rated, Trend, A to Z; sparkline per brewery rated in two or more seasons;
+   badges Closed and Doesn't qualify), `renderTour` → `renderBreweries` (Ratings) and
    `renderToday`, `renderPeople` → Scores, Favourites, Attendance, Consistency.
 5. **Shell.** `render()`, hash routing (`#winners`, `#breweries`, `#tour-ratings`, `#tour-today`,
-   `#people-<tab>`), one delegated click handler, the year selector in the header.
+   `#people-<tab>`), one delegated click handler, the year selector in the header. The selected season is kept in the
+   query string (`?year=2025` or `?year=all`, set with `history.replaceState`) so a refresh keeps it; the view stays in the hash.
 
 Header: logo, rated count, season selector. Bottom menu: Winners, Breweries, Tour, People.
+
+## Qualification
+
+A brewery **qualifies** for the tour while it still brews on site (`brewsOnSite` is not `false`). Being closed is a
+separate thing: a closed brewery that brewed on site still qualifies and only gets the Closed badge. The all-time Winners
+podium (on All) and Biggest movers leave out breweries that are closed or do not qualify (`elig`); every season
+ranking keeps them. The rule lives in the page; the data only holds the two facts. The Winners intro explains it, with
+"brewing on site" highlighted.
 
 ## The data contract
 
@@ -43,8 +59,12 @@ or rename one as part of a design task. If the format must change, treat it as i
 - Never edit anything under `data/`. Never put sample or fake ratings in the repo.
 - Keep working: empty states (no ratings, no seasons), one season and many seasons, All and a single season,
   long brewery names, people with few ratings, a closed brewery, a stage without times.
+- Do not hardcode brewery names, ids, seasons or scores in the page, and keep state words (closed, no longer qualifies)
+  out of data text: the page shows badges from the fields.
+- The favicon is an inline SVG data URI in `<head>` (gold beer mug on charcoal), so it needs no extra file.
 - Keep the page one file, with no remote images and no remote scripts. Fonts: Barlow from Google Fonts with a system
-  fallback. Photos are `img/<breweryid>.jpg`, shown as a circle over an initials fallback.
+  fallback. Photos are `img/<breweryid>.jpg`, shown as a circle over an initials fallback. Use only the group's own photos
+  (or with permission); never copy from Google Maps. There are none for now, so every brewery shows initials.
 - Mobile first: check at 360 and 390 px wide, no sideways scrolling, tap targets at least 38 px, text at least 12 px.
 - External links open in a new window (already handled by the click handler for `a[target="_blank"]`).
 - Typographic punctuation in visible text: ’ for apostrophes, real minus sign, en dash in time ranges.

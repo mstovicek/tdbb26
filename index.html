@@ -6,6 +6,7 @@
 <meta name="color-scheme" content="dark">
 <meta name="theme-color" content="#353433">
 <title>TDBB results</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 64 64%22%3E%3Crect width=%2264%22 height=%2264%22 rx=%2214%22 fill=%22%23353433%22/%3E%3Cpath d=%22M17 24h24v24a5 5 0 0 1-5 5H22a5 5 0 0 1-5-5z%22 fill=%22%23E7C566%22/%3E%3Cpath d=%22M41 28h4a6 6 0 0 1 6 6v3a6 6 0 0 1-6 6h-4%22 fill=%22none%22 stroke=%22%23E7C566%22 stroke-width=%225%22/%3E%3Cpath d=%22M15 25a6 6 0 0 1 5-9 7 7 0 0 1 13-2 7 7 0 0 1 10 5 5 5 0 0 1-2 6z%22 fill=%22%23FBEBD3%22/%3E%3Cpath d=%22M24 31v16M31 31v16%22 stroke=%22%23353433%22 stroke-width=%223%22 stroke-linecap=%22round%22 opacity=%22.35%22/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700;900&display=swap" rel="stylesheet">
@@ -173,6 +174,23 @@ td.detail{padding:4px 0 14px;background:transparent}
 .trophy{width:46px;height:46px;fill:none;stroke:var(--gold);stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
 .sec{margin:26px 0 2px;font-size:19px;line-height:1.2;font-weight:700}
 .sec-sub{margin:0 0 14px;color:var(--muted);font-size:14px}
+.regs{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.regs li{display:flex;align-items:center;gap:12px;padding:10px 12px;background:var(--raise);border:1px solid var(--line);border-radius:12px;min-height:48px}
+.regs .rk{flex:none;width:28px;height:28px;font-size:14px}
+.regs .rk.gold{background:var(--gold);color:#2B2A29;border-color:var(--gold)}
+.regs .rn{flex:1;font-weight:700;font-size:17px}
+.regs .rs{text-align:right;line-height:1.25}
+.regs .rs b{display:block;color:var(--gold);font-weight:700}
+.regs .rs small{color:var(--muted);font-size:12px}
+.trend{display:flex;align-items:center;gap:8px;margin-top:8px;color:var(--muted);font-size:12.5px}
+.trend svg{flex:none}
+.trend polyline{fill:none;stroke:var(--muted);stroke-width:1.5;stroke-linejoin:round;stroke-linecap:round}
+.trend circle{fill:var(--muted)}
+.trend circle.now{fill:var(--cream)}
+.trend.up circle.now{fill:var(--gold)}
+.trend.up span{color:var(--gold)}
+.trend.down circle.now{fill:var(--lilac)}
+.trend.down span{color:var(--lilac)}
 .podium{display:flex;align-items:flex-end;gap:6px}
 .pcol{flex:1 1 0;min-width:0;display:flex;flex-direction:column;align-items:center;text-align:center}
 .pwho{padding:0 2px 10px;width:100%}
@@ -215,7 +233,8 @@ td.detail{padding:4px 0 14px;background:transparent}
 .banner ul{margin:6px 0 0;padding-left:18px}
 .banner.test{background:rgba(231,197,102,.14);border:1px solid var(--gold)}
 .banner.warn{background:rgba(187,169,255,.12);border:1px solid var(--lilac)}
-.tagc{display:inline-block;margin-left:6px;padding:0 8px;border:1px solid var(--muted);border-radius:999px;font-size:11px;font-weight:600;color:var(--muted);vertical-align:2px}
+.tagc{display:inline-block;margin-left:6px;padding:1px 9px;border:1px solid var(--muted);border-radius:999px;background:rgba(171,166,156,.14);font-size:11px;font-weight:500;letter-spacing:.02em;color:var(--muted);vertical-align:2px}
+.tagq{border-color:var(--lilac);color:var(--lilac);background:rgba(187,169,255,.12)}
 .rc small{color:var(--muted);font-size:12px}
 
 /* bottom nav */
@@ -343,12 +362,29 @@ function validStops(stg,sid){
   });
 }
 function seasonIds(){return (DB.manifest.seasons||[]).filter(id=>DB.seasons[id])}
+let HISTORY={};             // brewery id -> [{sid,label,idx,overall}] for every season it was rated, whatever season is selected
+function buildHistory(){
+  HISTORY={};
+  const ids=seasonIds();
+  ids.forEach((sid,si)=>{
+    const per={};
+    (DB.seasons[sid].stages||[]).forEach((stg,i)=>validStops(stg,sid).forEach(sp=>{
+      const ents=entries(sp.ratings,sid,i+1,sp.brewery);
+      if(ents.length)per[sp.brewery]=(per[sp.brewery]||[]).concat(ents);
+    }));
+    Object.keys(per).forEach(id=>{
+      const vs=per[id].map(r=>r.v);
+      (HISTORY[id]=HISTORY[id]||[]).push({sid:sid,label:DB.seasons[sid].label,idx:si,overall:wsum([0,1,2].map(i=>mean(vs.map(v=>v[i]))))});
+    });
+  });
+}
 function buildModel(year){
   const ids=seasonIds();
+  buildHistory();
   PROFILES={};
   Object.keys(DB.breweries.breweries||{}).forEach(id=>{
     const b=DB.breweries.breweries[id];
-    PROFILES[id]={addr:b.address||'',line:b.highlight||'',status:b.status||'open'};
+    PROFILES[id]={addr:b.address||'',line:b.highlight||'',status:b.status||'open',qual:b.brewsOnSite!==false,elig:b.brewsOnSite!==false&&(b.status||'open')==='open'};
   });
   STAGES=[];BREWERIES=[];
   if(year!=='all'&&DB.seasons[year]){
@@ -411,6 +447,7 @@ function prepare(){
   PEOPLE=Object.keys((DB.people||{}).people||{}).map(id=>({id:id,name:DB.people.people[id].name}));
   const ids=seasonIds();
   state.year=ids.length?ids[ids.length-1]:'all';
+  try{const q=new URLSearchParams(location.search).get('year');if(q==='all'||ids.indexOf(q)>-1)state.year=q}catch(_){}
   populateYears();
   applyYear();
 }
@@ -747,44 +784,95 @@ function confetti(){
   }
   return '<div class="confetti" aria-hidden="true">'+s+'</div>';
 }
+function sparkline(id){
+  const h=HISTORY[id]||[];
+  if(h.length<2)return '';
+  const N=seasonIds().length,W_=72,H_=24,px=4;
+  const vals=h.map(x=>x.overall);
+  let lo=Math.min.apply(null,vals),hi=Math.max.apply(null,vals);
+  if(hi-lo<1){const m=(hi+lo)/2;lo=m-.5;hi=m+.5}
+  const X=i=>px+(N>1?i/(N-1):0)*(W_-2*px),Y=v=>H_-px-(v-lo)/(hi-lo)*(H_-2*px);
+  const pts=h.map(x=>X(x.idx).toFixed(1)+','+Y(x.overall).toFixed(1));
+  const last=h[h.length-1],prev=h[h.length-2],d=last.overall-prev.overall;
+  const dir=Math.abs(d)<.005?'flat':d>0?'up':'down';
+  const txt=(Math.abs(d)<.005?'no change':(d>0?'+':'\u2212')+f2(Math.abs(d)))+' since '+prev.label;
+  const label=h.map(x=>x.label+' '+f2(x.overall)).join(', ');
+  return '<div class="trend '+dir+'" role="img" aria-label="Score by season: '+esc(label)+'"><svg viewBox="0 0 '+W_+' '+H_+'" width="'+W_+'" height="'+H_+'" aria-hidden="true"><polyline points="'+pts.join(' ')+'"/>'+
+    h.map((x,i)=>'<circle cx="'+X(x.idx).toFixed(1)+'" cy="'+Y(x.overall).toFixed(1)+'" r="'+(i===h.length-1?3:2)+'"'+(i===h.length-1?' class="now"':'')+'/>').join('')+
+    '</svg><span>'+txt+'</span></div>';
+}
+function movers(){
+  const ids=seasonIds();
+  const target=(!SCOPE.all&&DB.seasons[state.year])?state.year:(ids.length?ids[ids.length-1]:null);
+  if(!target)return [];
+  const out=[];
+  Object.keys(HISTORY).forEach(id=>{
+    if(SCOPE.all&&(PROFILES[id]||{}).elig===false)return;
+    const h=HISTORY[id],i=h.findIndex(x=>x.sid===target);
+    if(i<1)return;
+    const d=h[i].overall-h[i-1].overall;
+    if(d>=.005)out.push({id:id,name:(BR(id)||{}).name||id,from:h[i-1],to:h[i],d:d});
+  });
+  return out.sort((a,b)=>b.d-a.d||a.name.localeCompare(b.name,'de')).slice(0,3);
+}
+function moversHtml(){
+  const m=movers();
+  if(!m.length)return '';
+  return '<h2 class="sec">Biggest movers</h2><p class="sec-sub">The breweries that improved most since we last visited.</p>'+
+    '<ol class="regs">'+m.map((x,i)=>'<li><span class="rk'+(i===0?' gold':'')+'">'+(i+1)+'</span><span class="rn">'+esc(x.name)+'</span>'+
+      '<span class="rs"><b>+'+f2(x.d)+'</b><small>'+f2(x.from.overall)+' \u2192 '+f2(x.to.overall)+'</small></span></li>').join('')+'</ol>';
+}
 function renderWinners(){
   const brews=computeBrews();
   const rated=brews.filter(b=>b.rated);
   const people=computePeople(brews);
   if(!rated.length)return '<h1>Winners</h1><p class="lede">No ratings yet.</p>';
-  const bg=topGroups(rated,b=>b.overall);
-  const pg=topGroups(people,p=>p.n+p.stagesAttended/100);
+  const openOnly=rated.filter(b=>!SCOPE.all||(PROFILES[b.id]||{}).elig!==false);
+  const bg=topGroups(openOnly,b=>b.overall);
+  const regs=people.slice().sort((a,b)=>b.n-a.n||b.stagesAttended-a.stagesAttended||a.name.localeCompare(b.name,'de')).slice(0,5);
   const bStat=it=>'<b class="psc">'+f2(it.overall)+'</b><span class="pstat">beer '+f2(it.beer)+', service '+f2(it.svc)+', GL '+f2(it.gl)+'</span>';
-  const pStat=it=>'<b class="psc">'+plural(it.n,'rating')+'</b><span class="pstat">across '+plural(it.stagesAttended,SCOPE.unit)+'</span>';
+  let rr=0,pv=null;
+  const regList='<ol class="regs">'+regs.map((p,i)=>{
+    const k=p.n+p.stagesAttended/100;if(pv===null||Math.abs(k-pv)>1e-9){rr=i+1;pv=k}
+    return '<li><span class="rk'+(rr===1?' gold':'')+'">'+rr+'</span><span class="rn">'+esc(p.name)+'</span><span class="rs"><b>'+plural(p.n,'rating')+'</b><small>across '+plural(p.stagesAttended,SCOPE.unit)+'</small></span></li>';
+  }).join('')+'</ol>';
   const trophy='<svg class="trophy" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 4h8v5a4 4 0 0 1-8 0V4z"/><path d="M8 6H5.5a1 1 0 0 0-1 1c0 2 1.5 3.5 3.5 3.5"/><path d="M16 6h2.5a1 1 0 0 1 1 1c0 2-1.5 3.5-3.5 3.5"/><path d="M12 13v4"/><path d="M9.5 20h5"/></svg>';
   return '<div class="fx">'+confetti()+
     '<div class="win-hero">'+trophy+'<h1>Winners</h1><p class="lede">'+(SCOPE.all?'All seasons':'Season '+esc(SCOPE.label)+' results')+'</p></div>'+
-    '<div class="about"><b>TDBB</b> is the Tour de Berlin Breweries, the Berlin edition of <b>TDP</b>, <a href="https://www.tourdepivovar.cz/" target="_blank" rel="noopener">Tour de Pivovar</a> (pivovar is Czech for brewery), which started in Prague in 2012. We visit breweries in stages and score each one for beer, service and genius loci, the feel of the place.</div>'+
-    '<h2 class="sec">'+(SCOPE.all?'Breweries of all time':'Breweries of the year')+'</h2><p class="sec-sub">The three best overall scores.</p>'+
+    '<div class="about"><b>TDBB</b> is the Tour de Berlin Breweries, the Berlin edition of <b>TDP</b>, <a href="https://www.tourdepivovar.cz/" target="_blank" rel="noopener">Tour de Pivovar</a> (pivovar is Czech for brewery), which started in Prague in 2012. We visit breweries in stages and score each one for beer, service and genius loci, the feel of the place. A brewery qualifies for the tour while it is still <b>brewing on site</b>, so places that no longer brew their own beer on the premises do not qualify. Closed places and those that do not qualify are left off the all-time Winners podium.</div>'+
+    '<h2 class="sec">'+(SCOPE.all?'Breweries of all time':'Breweries of the year')+'</h2><p class="sec-sub">The three best overall scores'+(SCOPE.all?', among breweries that are open and qualify.':'.')+'</p>'+
     podium(bg,bStat,false)+'</div>'+
-    '<h2 class="sec">The regulars</h2><p class="sec-sub">The people who rated the most breweries.</p>'+
-    podium(pg,pStat,true)+
+    moversHtml()+
+    '<h2 class="sec">The regulars</h2><p class="sec-sub">The top five people by breweries rated.</p>'+
+    regList+
     '<p class="note">Breweries are ranked by overall score ('+wtext().replace(' and ',', ')+'). People are ranked by ratings given, then by '+(SCOPE.all?'seasons':'stages')+' attended. A tie shares the place.</p>';
 }
 
 /* ---------- brewery profiles ---------- */
 const initials=n=>{const w=n.replace(/&/g,' ').split(/[\s-]+/).filter(Boolean);return (w.length>1?w[0][0]+w[1][0]:w[0].slice(0,2)).toUpperCase()};
+function trendDelta(id){
+  const h=HISTORY[id]||[];
+  return h.length<2?null:h[h.length-1].overall-h[h.length-2].overall;
+}
 function renderProfiles(){
+  const byRating=(a,b)=>(a.rated!==b.rated?(a.rated?-1:1):0)||((b.overall||0)-(a.overall||0))||a.name.localeCompare(b.name,'de');
   const rows=computeBrews().sort(state.pord==='name'
     ?(a,b)=>a.name.localeCompare(b.name,'de')
+    :state.pord==='trend'
+    ?(a,b)=>{const x=trendDelta(a.id),y=trendDelta(b.id);return (x===null)-(y===null)||(x!==null?y-x:0)||byRating(a,b)}
     :(a,b)=>(a.rated!==b.rated?(a.rated?-1:1):0)||((b.overall||0)-(a.overall||0))||a.name.localeCompare(b.name,'de'));
   const pin='<svg class="pin" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.4"/></svg>';
   const cards=rows.map(b=>{
     const p=PROFILES[b.id]||{addr:'',line:''};
     const pic=esc(initials(b.name))+'<img src="img/'+esc(b.id)+'.jpg" alt="" loading="lazy">';
     const maps='https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(b.name+', '+p.addr);
-    return '<article class="card"><div class="pic">'+pic+'</div><div><div class="ch"><h2>'+esc(b.name)+(p.status==='closed'?'<span class="tagc">Closed</span>':'')+'</h2>'+
+    return '<article class="card"><div class="pic">'+pic+'</div><div><div class="ch"><h2>'+esc(b.name)+(p.status==='closed'?'<span class="tagc">Closed</span>':'')+(p.qual===false?'<span class="tagc tagq" title="No longer brewing on site, so it is off the tour">Doesn\u2019t qualify</span>':'')+'</h2>'+
       '<div class="cr">'+STARSVG+'<b>'+(b.rated?f2(b.overall):'\u2013')+'</b>'+(b.rated?'<small>#'+b.rank+'</small>':'')+'</div></div>'+
       '<a class="addr" href="'+esc(maps)+'" target="_blank" rel="noopener">'+pin+'<span>'+esc(p.addr)+'</span></a>'+
-      '<p class="hl">'+esc(p.line)+'</p></div></article>';
+      '<p class="hl">'+esc(p.line)+'</p>'+sparkline(b.id)+'</div></article>';
   }).join('');
   return '<h1>Breweries</h1><p class="lede">'+rows.length+(SCOPE.all?' places visited on the Tour de Berlin Breweries.':' places on this season\u2019s Tour de Berlin Breweries.')+' The score is the group\u2019s overall rating; tap an address to open it in Maps.</p>'+
-    chips([['rating','Top rated'],['name','A to Z']],v=>state.pord===v,'data-bord')+cards;
+    chips([['rating','Top rated'],['trend','Trend'],['name','A to Z']],v=>state.pord===v,'data-bord')+cards;
 }
 
 /* ---------- tour ---------- */
@@ -902,6 +990,7 @@ setInterval(()=>{if(state.view==='tour'&&state.ttab==='today')render()},60000);
 document.addEventListener('change',e=>{
   if(DB&&e.target&&e.target.matches&&e.target.matches('select[data-year]')){
     state.year=e.target.value;state.open=new Set();state.stage='all';
+    try{const u=new URL(location.href);u.searchParams.set('year',state.year);history.replaceState(null,'',u)}catch(_){}
     applyYear();render();
   }
 });
