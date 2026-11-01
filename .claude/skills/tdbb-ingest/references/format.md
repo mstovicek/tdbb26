@@ -55,6 +55,8 @@ Only `name`. There are no aliases: one person, one name.
   A brewery **qualifies** for the tour when `brewsOnSite` is not `false`; `status` does not affect this, so a closed
   brewery that used to brew on site still qualifies. Breweries that do not qualify, and closed ones, stay in every season
   ranking; the page leaves them out of the all-time Winners podium and the Biggest movers list.
+- `lat` and `lng` are optional, always together: decimal degrees, inside Berlin. The Map tab shows only breweries that
+  have them. Geocode the address, then check the pin on a map before saving.
 - `highlight` is one sentence for the Breweries page. Keep it to lasting facts about the place. Do not put scores,
   opening hours, or anything the other fields already express (closed, no longer qualifies) in it: those go stale, and
   the page shows `status` and `brewsOnSite` as badges by itself.

@@ -120,7 +120,12 @@ def check_breweries(b, path):
             err('%s: brewery "%s" status must be "open" or "closed"' % (path, bid))
         if 'brewsOnSite' in v and not isinstance(v['brewsOnSite'], bool):
             err('%s: brewery "%s" brewsOnSite must be true or false' % (path, bid))
-        extra = set(v) - {'name', 'address', 'highlight', 'status', 'brewsOnSite'}
+        for k, lo, hi in (('lat', 52.2, 52.8), ('lng', 12.9, 13.9)):
+            if k in v and not (isinstance(v[k], (int, float)) and not isinstance(v[k], bool) and lo <= v[k] <= hi):
+                err('%s: brewery "%s" %s must be a number inside Berlin (%s to %s)' % (path, bid, k, lo, hi))
+        if ('lat' in v) != ('lng' in v):
+            err('%s: brewery "%s" needs both lat and lng, or neither' % (path, bid))
+        extra = set(v) - {'name', 'address', 'highlight', 'status', 'brewsOnSite', 'lat', 'lng'}
         if extra:
             err('%s: brewery "%s" has unknown fields %s' % (path, bid, sorted(extra)))
         if isinstance(v.get('name'), str):
