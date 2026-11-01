@@ -74,6 +74,8 @@ def main(argv):
             if b: sp['end'] = b
             if t: sp['travel'] = t
             stops.append(sp)
+        if not stops:
+            fail('no open breweries that brew on site, so there is nothing to build a test agenda from')
         stops[0]['note'] = 'Test agenda, not a real plan'
         last['stages'].append({'date': (datetime.now() + timedelta(days=14)).strftime('%Y-%m-%d'), 'stops': stops})
         print('Added a TEST stage on %s with %d stops (embedded copy only)' % (last['stages'][-1]['date'], len(stops)))

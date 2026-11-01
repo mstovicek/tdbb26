@@ -1,0 +1,25 @@
+name: Tests
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate the data and test the scripts (includes the Python/JavaScript cross-check)
+        run: python3 -m unittest discover -s tests/python -v
+      - name: Test the page
+        run: node --test tests/js/

@@ -36,6 +36,9 @@ img/<breweryid>.jpg              optional own photos, about 400 px square (none 
   `index-test.html`, which is git-ignored.
 - The site is public: first names and scores only, no reservation numbers, no private details.
 - Always validate before committing: `python3 .claude/skills/tdbb-ingest/scripts/validate.py data`
+- Run the tests before committing a change to `index.html` or to a script (see `tests/README.md`). Test data is built
+  inside the tests; never put fake ratings in `data/`.
+- Scores are shown rounded half up to two decimals (3.675 is 3.68), in the page and in `summary.py`.
 - Never force push, rewrite history or push to a branch other than the current one. Undo with `git revert`.
 
 ## Quick commands
@@ -45,5 +48,7 @@ python3 .claude/skills/tdbb-ingest/scripts/validate.py data      # check all dat
 python3 .claude/skills/tdbb-ingest/scripts/summary.py data       # ranking of the latest season
 python3 .claude/skills/tdbb-design/scripts/embed.py              # writes index-test.html with data embedded
 python3 .claude/skills/tdbb-design/scripts/embed.py --test-agenda  # same, plus an invented upcoming stage (test copy only)
+python3 -m unittest discover -s tests/python                    # script tests, real data, Python/JS cross-check
+node --test tests/js/                                            # page tests
 python3 -m http.server 8000                                      # preview the real loading path at localhost:8000
 ```

@@ -63,7 +63,8 @@ or rename one as part of a design task. If the format must change, treat it as i
 
 - **Never commit embedded data in `index.html`.** The live page keeps its `tdbb-data` block empty so it always reads
   the real files. Test builds go to `index-test.html` (git-ignored).
-- Never edit anything under `data/`. Never put sample or fake ratings in the repo.
+- Never edit anything under `data/`. Never put sample or fake ratings in the repo; test data is built inside the tests
+  (`tests/js/fixtures.mjs`), never stored as files.
 - Keep working: empty states (no ratings, no seasons), one season and many seasons, All and a single season,
   long brewery names, people with few ratings, a closed brewery, a stage without times, no upcoming stage (Agenda
   placeholders, no banner), a planned stage with a date but no stops (empty stages are not listed under Ratings).
@@ -87,6 +88,10 @@ Rank circles echo the Tour screen from the original TDP app design. Keep tables 
 
 ## Testing a change
 
+0. Run the tests: `node --test tests/js/` (page) and `python3 -m unittest discover -s tests/python` (scripts and the
+   Python/JS cross-check). A change that alters a number, a rank or a rule should come with a test. The page tests use
+   `tests/js/harness.mjs`, which runs the real script against a browser stand-in; if the page starts using a new browser
+   feature, add it to the stand-in or the page will quietly fall back (that is how `URLSearchParams` was once missed).
 1. Check the data first: `python3 .claude/skills/tdbb-ingest/scripts/validate.py data`.
 2. Real loading path: serve the repo root (`python3 -m http.server 8000`) and open `http://localhost:8000/`.
 3. Embedded path (also works in previews that cannot fetch):

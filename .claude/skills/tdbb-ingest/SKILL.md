@@ -21,7 +21,8 @@ Format details: read `references/format.md` before creating a season or stage, o
 Scripts (Python 3, standard library only), run from the repo root:
 - `python3 .claude/skills/tdbb-ingest/scripts/validate.py data`  checks every rule. Run it on every change.
 - `python3 .claude/skills/tdbb-ingest/scripts/summary.py data [SEASON] [--stop BREWERYID]`  prints rankings. Use it
-  for scores and ranks; do not calculate by hand.
+  for scores and ranks; do not calculate by hand. It uses exact arithmetic and rounds half up (3.675 prints 3.68), the
+  same as the page; `tests/` checks that the two agree.
 
 ## Workflow for each stop
 
