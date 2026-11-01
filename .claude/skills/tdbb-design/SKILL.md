@@ -33,7 +33,7 @@ One file, no libraries, no build step. Inside the `<script>`:
    `renderProfiles` (Breweries: sort Top rated or A to Z; district shown before the address; a sparkline per brewery rated in
    two or more seasons, **only when Season = All**;
    badges Closed and Doesn't qualify), `renderTour` → `renderBreweries` (Ratings) and
-   `renderAgenda` (placeholders when nothing is planned), `renderPeople` → Attendance, Scores, Favourites, Consistency.
+   `renderAgenda` (placeholders when nothing is planned), `renderPeople` → Attendance, Scores, Favourites, Consistency, **Twins**.
 5. **Shell.** `render()`, hash routing (`#winners`, `#breweries`, `#tour-ratings`, `#tour-agenda` (the old `#tour-today` still works),
    `#people-<tab>`), one delegated click handler, the year selector in the header. The selected season is kept in the
    query string (`?year=2025` or `?year=all`, set with `history.replaceState`) so a refresh keeps it; the view stays in the hash.
@@ -44,6 +44,19 @@ built from layered `<use>` copies and a clip path. It follows the TDP logo scree
 The Winners page has no trophy icon, to save space.
 
 Bottom menu: Winners, Breweries, Tour, People.
+
+## Voting twins (People > Twins)
+
+`computeTwins` finds the three groups of people whose scores are closest. Nothing is stored; it is derived from the
+ratings and follows the season selector.
+- A **visit** is a brewery in one season (so on All a repeat visit counts twice). Two people are compared on the visits both
+  rated. Their **gap** is the average number of points apart per score (beer, service, GL), pooled over all those scores.
+  A pair needs at least `TWIN_MIN` (3) shared visits.
+- Groups are built greedily: the closest remaining pair seeds a group, and anyone within `TWIN_SLACK` (0.10 points) of the
+  seed's gap to **every** member joins (so a trio like Filip & Matouš & Zbynďa forms when all three are nearly as close as
+  the leading pair). **Each person is in one group at most**, so the three rows are different people. `TWIN_PLACES` is 3.
+- Each row shows the gap, the share of identical scores, and the fewest shared breweries between members.
+- The five People tabs fit at 360 px with 12 px labels (`.seg.five`). A sixth tab would not: reconsider the layout first.
 
 ## Qualification
 

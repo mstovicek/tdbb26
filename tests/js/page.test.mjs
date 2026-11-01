@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { ratingsRows, renderPage, textOf } from './harness.mjs';
-import { mainBundle, regularsBundle, withStage } from './fixtures.mjs';
+import { TWIN_SCORES, mainBundle, regularsBundle, twinsBundle, twoSeasonPairBundle, withStage } from './fixtures.mjs';
 
 const page = (hash, search = '?year=all', extra = {}) => renderPage({ bundle: mainBundle(), hash, search, ...extra });
 const section = (html, from, to) => {
@@ -186,10 +186,10 @@ test('an older season selected shows its last stage, not placeholders', async ()
 });
 
 // ---------------------------------------------------------------- navigation and defaults
-test('People tabs are ordered Attendance, Scores, Favourites, Consistency, and Attendance opens first', async () => {
+test('People tabs are ordered Attendance, Scores, Favourites, Consistency, Twins, and Attendance opens first', async () => {
   const { html } = await page('#people');
   const tabs = [...html.matchAll(/data-ptab="(\w+)"/g)].map(m => m[1]);
-  assert.deepEqual(tabs, ['attendance', 'scores', 'favourites', 'consistency']);
+  assert.deepEqual(tabs, ['attendance', 'scores', 'favourites', 'consistency', 'twins']);
   assert.match(html, /data-ptab="attendance" aria-selected="true"/);
 });
 
@@ -214,4 +214,76 @@ test('a season with no ratings says so instead of crashing', async () => {
   b.seasons['2026'].stages = [{ date: '2026-04-10', stops: [{ brewery: 'alpha', ratings: {} }] }];
   const { text } = await renderPage({ bundle: b, hash: '#winners', search: '?year=2026' });
   assert.match(text, /No ratings yet/);
+});
+
+// ---------------------------------------------------------------- voting twins
+const twins = async (bundle, search = '?year=2026') => {
+  const { html, text } = await renderPage({ bundle, hash: '#people-twins', search });
+  const rows = [...html.matchAll(/<li><span class="rk[^"]*">(\d)<\/span><span class="rn">([^<]*)<\/span><span class="rs"><b>([^<]*)<\/b><small>([^<]*)<\/small>/g)]
+    .map(m => ({ place: m[1], who: textOf(m[2]), gap: m[3], detail: textOf(m[4]) }));
+  return { rows, html, text };
+};
+
+test('Twins: the three closest groups, a trio where everyone is nearly as close as the leading pair', async () => {
+  const { rows } = await twins(twinsBundle());
+  assert.deepEqual(rows.map(r => [r.place, r.who, r.gap]), [
+    ['1', 'Ann & Ben & Cat', '0.04 apart'],
+    ['2', 'Dan & Eve', '0.17 apart'],
+    ['3', 'Fay & Gus', '0.28 apart'],
+  ]);
+  assert.equal(rows[0].detail, 'same score 96% · at least 6 shared breweries');
+  assert.equal(rows[1].detail, 'same score 83% · 6 shared breweries');
+});
+
+test('Twins: nobody appears twice, and people who are far from everyone are not listed', async () => {
+  const { rows } = await twins(twinsBundle());
+  const everyone = rows.flatMap(r => r.who.split(' & '));
+  assert.equal(new Set(everyone).size, everyone.length);
+  assert.ok(!everyone.includes('Hal'));
+});
+
+test('Twins: a pair needs at least 3 breweries in common (Zed copies Ann but only shares 2)', async () => {
+  const { rows } = await twins(twinsBundle());
+  assert.ok(!rows.some(r => r.who.includes('Zed')));
+});
+
+test('Twins: someone who is too far from the leading pair does not join its group', async () => {
+  const far = { ...TWIN_SCORES, Cat: ['333', '424', '543', '222', '445', '000'] };   // 6 points off Ann and Ben at one brewery
+  const { rows } = await twins(twinsBundle(far));
+  assert.equal(rows[0].who, 'Ann & Ben');
+  assert.ok(!rows.some(r => r.who.includes('Cat')), 'Cat is close to nobody else either');
+});
+
+test('Twins: someone already in a group cannot also join a later one', async () => {
+  // Dan and Eve are each 2 points from Ann and Ben (0.11 apart: too far to join their group, but within reach of the
+  // Dan & Eve group's slack). Ann and Ben must stay in the first group only.
+  const ann = TWIN_SCORES.Ann;
+  const scores = {
+    Ann: ann, Ben: ann,
+    Dan: ann.map((s, i) => (i === 0 ? '433' : i === 1 ? '524' : s)),
+    Eve: ann.map((s, i) => (i === 0 ? '233' : i === 2 ? '443' : s)),
+  };
+  const { rows } = await twins(twinsBundle(scores));
+  assert.deepEqual(rows.map(r => [r.who, r.gap]), [['Ann & Ben', '0.00 apart'], ['Dan & Eve', '0.22 apart']]);
+});
+
+test('Twins: a visit is a brewery in one season, so All counts a repeat visit twice', async () => {
+  const bundle = twoSeasonPairBundle();
+  assert.equal((await twins(bundle, '?year=all')).rows[0].who, 'Xan & Yui');   // b1 (2025), b2 (2025), b1 (2026)
+  assert.match((await twins(bundle, '?year=2026')).text, /Not enough shared ratings/);
+  assert.match((await twins(bundle, '?year=2025')).text, /Not enough shared ratings/);
+});
+
+test('Twins: says so when nobody has enough breweries in common', async () => {
+  const b = twinsBundle();
+  b.seasons['2026'].stages[0].stops = b.seasons['2026'].stages[0].stops.slice(0, 2);
+  const { text, rows } = await twins(b);
+  assert.equal(rows.length, 0);
+  assert.match(text, /Not enough shared ratings yet/);
+});
+
+test('Twins is the fifth People tab, and #people-twins opens it', async () => {
+  const { html } = await renderPage({ bundle: twinsBundle(), hash: '#people-twins', search: '?year=2026' });
+  assert.deepEqual([...html.matchAll(/data-ptab="(\w+)"/g)].map(m => m[1]), ['attendance', 'scores', 'favourites', 'consistency', 'twins']);
+  assert.match(html, /data-ptab="twins" aria-selected="true"/);
 });

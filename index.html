@@ -164,6 +164,8 @@ td.detail{padding:4px 0 14px;background:transparent}
 .about b{color:var(--gold);font-weight:600}
 .about a{color:var(--gold);text-decoration:underline;text-underline-offset:2px}
 .seg.two{grid-template-columns:repeat(2,1fr)}
+.seg.five{grid-template-columns:repeat(5,1fr)}
+.seg.five button{font-size:12px;letter-spacing:-.1px}
 .win-hero{text-align:center;padding:8px 0 2px}
 .win-hero h1{margin:4px 0 2px;font-size:28px;line-height:1.1;text-wrap:balance}
 .win-hero .lede{margin:0}
@@ -599,6 +601,62 @@ function renderBreweries(){
 function who(p){
   return '<div class="who"><b>'+esc(p.name)+'</b><small>'+plural(p.n,'rating')+(p.few?', small sample':'')+'</small></div>';
 }
+/* ---------- voting twins: the people whose scores are closest ---------- */
+const TWIN_MIN=3;          // a pair needs at least this many breweries (visits) that both rated
+const TWIN_SLACK=.10;      // someone joins a group when they are within this many points of the leading pair
+const TWIN_PLACES=3;       // how many groups to show; each person appears in one group at most
+function computeTwins(brews){
+  const by={};             // person -> {brewery|season -> [beer,service,gl]}
+  brews.filter(b=>b.rated).forEach(b=>b.ratings.forEach(r=>{(by[r.p]=by[r.p]||{})[b.id+'|'+r.sid]=r.v}));
+  const names=Object.keys(by).sort((a,b)=>a.localeCompare(b,'de'));
+  const stat={},key=(a,b)=>a<b?a+'\u0001'+b:b+'\u0001'+a;
+  for(let i=0;i<names.length;i++)for(let j=i+1;j<names.length;j++){
+    const A=by[names[i]],B=by[names[j]];
+    let n=0,diff=0,same=0;
+    Object.keys(A).forEach(k=>{
+      if(!B[k])return;
+      n++;
+      for(let c=0;c<3;c++){const d=Math.abs(A[k][c]-B[k][c]);diff+=d;if(d===0)same++}
+    });
+    if(n>=TWIN_MIN)stat[key(names[i],names[j])]={a:names[i],b:names[j],n:n,diff:diff,same:same,gap:diff/(3*n)};
+  }
+  const pair=(x,y)=>stat[key(x,y)];
+  const EPS=1e-9;
+  const order=Object.keys(stat).map(k=>stat[k]).sort((p,q)=>(Math.abs(p.gap-q.gap)>EPS?p.gap-q.gap:0)||q.n-p.n||p.a.localeCompare(q.a,'de')||p.b.localeCompare(q.b,'de'));
+  const used=new Set(),out=[];
+  while(out.length<TWIN_PLACES){
+    const seed=order.find(p=>!used.has(p.a)&&!used.has(p.b));
+    if(!seed)break;
+    const grp=[seed.a,seed.b],cap=seed.gap+TWIN_SLACK+EPS;
+    for(;;){
+      let best=null;
+      names.forEach(x=>{
+        if(used.has(x)||grp.indexOf(x)>=0)return;
+        const ps=grp.map(m=>pair(x,m));
+        if(ps.some(q=>!q||q.gap>cap))return;
+        const avg=ps.reduce((t,q)=>t+q.gap,0)/ps.length;
+        if(!best||avg<best.avg-EPS)best={x:x,avg:avg};
+      });
+      if(!best)break;
+      grp.push(best.x);
+    }
+    const ps=[];
+    for(let i=0;i<grp.length;i++)for(let j=i+1;j<grp.length;j++)ps.push(pair(grp[i],grp[j]));
+    const items=ps.reduce((t,q)=>t+3*q.n,0);
+    out.push({names:grp.slice().sort((a,b)=>a.localeCompare(b,'de')),gap:ps.reduce((t,q)=>t+q.diff,0)/items,same:Math.round(100*ps.reduce((t,q)=>t+q.same,0)/items),n:Math.min.apply(null,ps.map(q=>q.n))});
+    grp.forEach(x=>used.add(x));
+  }
+  return out;
+}
+function renderTwins(){
+  const groups=computeTwins(computeBrews());
+  const head='<p class="lede">The people whose scores are closest. The gap is how many points apart they are, on average, on each score (beer, service and GL) at the breweries they both rated.</p>';
+  if(!groups.length)return head+'<p class="note">Not enough shared ratings yet. Two people need '+TWIN_MIN+' breweries that both rated.</p>';
+  return head+'<ol class="regs">'+groups.map((g,i)=>
+    '<li><span class="rk'+(i===0?' gold':'')+'">'+(i+1)+'</span><span class="rn">'+g.names.map(esc).join(' &amp; ')+'</span>'+
+    '<span class="rs"><b>'+f2(g.gap)+' apart</b><small>same score '+g.same+'% \u00b7 '+(g.names.length>2?'at least ':'')+g.n+' shared breweries</small></span></li>').join('')+'</ol>'+
+    '<p class="note">A group of three or more forms when everyone is nearly as close as the leading pair. Each person appears in one group only, and a pair needs at least '+TWIN_MIN+' breweries in common.</p>';
+}
 function peopleNotes(people,showFew){
   return showFew?'<p class="note">Grey rows have fewer than '+MIN+' ratings. They are listed last and not highlighted.</p>':'';
 }
@@ -699,14 +757,15 @@ function renderFavourites(people){
 }
 function renderPeople(){
   const people=computePeople(computeBrews());
-  const tabs=[['attendance','Attendance'],['scores','Scores'],['favourites','Favourites'],['consistency','Consistency']];
-  const seg='<div class="seg" role="tablist" aria-label="People views">'+tabs.map(t=>
+  const tabs=[['attendance','Attendance'],['scores','Scores'],['favourites','Favourites'],['consistency','Consistency'],['twins','Twins']];
+  const seg='<div class="seg five" role="tablist" aria-label="People views">'+tabs.map(t=>
     '<button type="button" role="tab" data-ptab="'+t[0]+'" aria-selected="'+(state.ptab===t[0])+'">'+t[1]+'</button>').join('')+'</div>';
   let inner;
   if(!people.length)inner='<p class="lede">No ratings yet.</p>';
   else if(state.ptab==='favourites')inner=renderFavourites(people);
   else if(state.ptab==='attendance')inner=renderAttendance(people);
   else if(state.ptab==='consistency')inner=renderConsistency(people);
+  else if(state.ptab==='twins')inner=renderTwins();
   else inner=renderScores(people);
   return '<h1>People</h1>'+seg+inner;
 }
@@ -919,7 +978,7 @@ function render(){
   document.getElementById('app').innerHTML=banners()+({winners:renderWinners,breweries:renderProfiles,tour:renderTour,people:renderPeople})[state.view]();
   ['winners','breweries','tour','people'].forEach(v=>{const n=document.getElementById('nav-'+v);if(v===state.view)n.setAttribute('aria-current','page');else n.removeAttribute('aria-current')});
 }
-const PTABS=['attendance','scores','favourites','consistency'];
+const PTABS=['attendance','scores','favourites','consistency','twins'];
 const TTABS=['ratings','agenda'];
 function readHash(){
   const h=location.hash.slice(1);

@@ -71,3 +71,49 @@ export function regularsBundle() {
     seasons: { 2026: { version: 1, id: '2026', label: '2025/2026', stages: [{ date: '2026-04-10', stops }] } },
   };
 }
+
+/**
+ * For the voting twins. Six breweries, one stage, every brewery rated by everyone except Zed (who rated only b1 and b2).
+ *   Ann = Ben = base1, Cat = base1 with one score 1 point off   -> a trio, 0.04 apart
+ *   Dan = base2, Eve = base2 with 3 points off                  -> a pair, 0.17 apart
+ *   Fay = base3, Gus = base3 with 5 points off                  -> a pair, 0.28 apart
+ *   Hal rates everything 0; Zed copies Ann but only has 2 breweries in common with anyone.
+ */
+const BASE1 = ['333', '424', '543', '222', '445', '351'];
+const BASE2 = ['155', '240', '012', '554', '110', '205'];
+const BASE3 = ['501', '052', '335', '100', '522', '033'];
+const tweak = (base, changes) => base.map((s, i) => { const d = s.split('').map(Number); (changes[i] || []).forEach(([c, by]) => { d[c] += by; }); return d.join(''); });
+export const TWIN_SCORES = {
+  Ann: BASE1, Ben: BASE1, Cat: tweak(BASE1, { 0: [[0, 1]] }),
+  Dan: BASE2, Eve: tweak(BASE2, { 1: [[1, -1]], 3: [[2, -1]], 5: [[0, 1]] }),
+  Fay: BASE3, Gus: tweak(BASE3, { 0: [[0, -1]], 1: [[2, -2]], 2: [[1, -1]], 4: [[0, -1]] }),
+  Hal: Array(6).fill('000'),
+};
+
+export function twinsBundle(scores = TWIN_SCORES) {
+  const all = { ...scores, Zed: BASE1.slice(0, 2) };
+  const people = Object.fromEntries(Object.keys(all).map(n => [n.toLowerCase(), { name: n }]));
+  const breweries = Object.fromEntries([1, 2, 3, 4, 5, 6].map(i => ['b' + i, place('B' + i)]));
+  const stops = [0, 1, 2, 3, 4, 5].map(i => ({
+    brewery: 'b' + (i + 1),
+    ratings: ratings(Object.fromEntries(Object.entries(all).filter(([, v]) => v[i] !== undefined).map(([n, v]) => [n.toLowerCase(), v[i]]))),
+  }));
+  return {
+    manifest: { version: 1, weights: WEIGHTS, seasons: ['2026'] }, people: { version: 1, people }, breweries: { version: 1, breweries },
+    seasons: { 2026: { version: 1, id: '2026', label: '2025/2026', stages: [{ date: '2026-04-10', stops }] } },
+  };
+}
+
+/** Two people who share b1 in two seasons and b2 in one: 3 visits on All, 1 in 2026 alone, 2 in 2025 alone. */
+export function twoSeasonPairBundle() {
+  const b = twinsBundle({ Xan: ['333', '333'], Yui: ['333', '333'] });
+  b.manifest.seasons = ['2025', '2026'];
+  const mk = (sid, label, date, stops) => ({ version: 1, id: sid, label, stages: [{ date, stops }] });
+  const rate = n => ratings({ xan: n, yui: n });
+  b.seasons = {
+    2025: mk('2025', '2024/2025', '2025-05-10', [{ brewery: 'b1', ratings: rate('333') }, { brewery: 'b2', ratings: rate('333') }]),
+    2026: mk('2026', '2025/2026', '2026-04-10', [{ brewery: 'b1', ratings: rate('333') }]),
+  };
+  b.people.people = { xan: { name: 'Xan' }, yui: { name: 'Yui' } };
+  return b;
+}
