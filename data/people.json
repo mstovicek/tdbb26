@@ -1,0 +1,59 @@
+{
+ "version": 1,
+ "people": {
+  "ines": {
+   "name": "Ines"
+  },
+  "milan": {
+   "name": "Milan"
+  },
+  "tim": {
+   "name": "Tim"
+  },
+  "jakub": {
+   "name": "Jakub"
+  },
+  "filip": {
+   "name": "Filip"
+  },
+  "wizard": {
+   "name": "Wizard"
+  },
+  "matous": {
+   "name": "Matouš"
+  },
+  "zbynda": {
+   "name": "Zbynďa"
+  },
+  "elton": {
+   "name": "Elton"
+  },
+  "martin": {
+   "name": "Martin"
+  },
+  "diogo": {
+   "name": "Diogo"
+  },
+  "dani": {
+   "name": "Dani"
+  },
+  "gokul": {
+   "name": "Gokul"
+  },
+  "sridhar": {
+   "name": "Sridhar"
+  },
+  "eva": {
+   "name": "Eva"
+  },
+  "lucka": {
+   "name": "Lucka"
+  },
+  "pepa": {
+   "name": "Pepa"
+  },
+  "jule": {
+   "name": "Jule"
+  }
+ }
+}
