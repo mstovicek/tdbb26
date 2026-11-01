@@ -163,11 +163,6 @@ td.detail{padding:4px 0 14px;background:transparent}
 .about b{color:var(--gold);font-weight:600}
 .about a{color:var(--gold);text-decoration:underline;text-underline-offset:2px}
 .seg.two{grid-template-columns:repeat(2,1fr)}
-.fx{position:relative;overflow:hidden}
-.confetti{position:absolute;inset:0;pointer-events:none;z-index:2}
-.confetti i{position:absolute;top:0;border-radius:2px;opacity:0;animation:fall 3s ease-in 1 forwards}
-@keyframes fall{0%{transform:translateY(-12px) rotate(0);opacity:0}10%{opacity:1}100%{transform:translateY(460px) rotate(560deg);opacity:0}}
-@media (prefers-reduced-motion:reduce){.confetti{display:none}}
 .win-hero{text-align:center;padding:8px 0 2px}
 .win-hero h1{margin:4px 0 2px;font-size:30px}
 .win-hero .lede{margin:0}
@@ -775,15 +770,6 @@ function podium(groups,statFn,shared){
       '<div class="pblock b'+g.rank+'">'+ORD[g.rank]+joint+'</div></div>';
   }).join('')+'</div>';
 }
-function confetti(){
-  const cols=['#E7C566','#7456E0','#FBEBD3','#BBA9FF','#CFD3DA'];
-  let s='';
-  for(let i=0;i<28;i++){
-    const left=(i*37+11)%100,delay=((i*7)%10)*0.18,w=6+(i%3)*2,h=10+(i%4)*3,dur=2.6+(i%5)*0.35;
-    s+='<i style="left:'+left+'%;background:'+cols[i%cols.length]+';width:'+w+'px;height:'+h+'px;animation-delay:'+delay.toFixed(2)+'s;animation-duration:'+dur.toFixed(2)+'s"></i>';
-  }
-  return '<div class="confetti" aria-hidden="true">'+s+'</div>';
-}
 function sparkline(id){
   const h=HISTORY[id]||[];
   if(h.length<2)return '';
@@ -837,7 +823,7 @@ function renderWinners(){
     return '<li><span class="rk'+(rr===1?' gold':'')+'">'+rr+'</span><span class="rn">'+esc(p.name)+'</span><span class="rs"><b>'+plural(p.n,'rating')+'</b><small>across '+plural(p.stagesAttended,SCOPE.unit)+'</small></span></li>';
   }).join('')+'</ol>';
   const trophy='<svg class="trophy" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 4h8v5a4 4 0 0 1-8 0V4z"/><path d="M8 6H5.5a1 1 0 0 0-1 1c0 2 1.5 3.5 3.5 3.5"/><path d="M16 6h2.5a1 1 0 0 1 1 1c0 2-1.5 3.5-3.5 3.5"/><path d="M12 13v4"/><path d="M9.5 20h5"/></svg>';
-  return '<div class="fx">'+confetti()+
+  return '<div>'+
     '<div class="win-hero">'+trophy+'<h1>Winners</h1><p class="lede">'+(SCOPE.all?'All seasons':'Season '+esc(SCOPE.label)+' results')+'</p></div>'+
     '<div class="about"><b>TDBB</b> is the Tour de Berlin Breweries, the Berlin edition of <b>TDP</b>, <a href="https://www.tourdepivovar.cz/" target="_blank" rel="noopener">Tour de Pivovar</a> (pivovar is Czech for brewery), which started in Prague in 2012. We visit breweries in stages and score each one for beer, service and genius loci, the feel of the place. A brewery qualifies for the tour while it is still <b>brewing on site</b>, so places that no longer brew their own beer on the premises do not qualify. Closed places and those that do not qualify are left off the all-time Winners podium.</div>'+
     '<h2 class="sec">'+(SCOPE.all?'Breweries of all time':'Breweries of the year')+'</h2><p class="sec-sub">The three best overall scores'+(SCOPE.all?', among breweries that are open and qualify.':'.')+'</p>'+
