@@ -49,6 +49,6 @@ python3 .claude/skills/tdbb-ingest/scripts/summary.py data       # ranking of th
 python3 .claude/skills/tdbb-design/scripts/embed.py              # writes index-test.html with data embedded
 python3 .claude/skills/tdbb-design/scripts/embed.py --test-agenda  # same, plus an invented upcoming stage (test copy only)
 python3 -m unittest discover -s tests/python                    # script tests, real data, Python/JS cross-check
-node --test tests/js/                                            # page tests
+node --test tests/js/*.test.mjs                                            # page tests
 python3 -m http.server 8000                                      # preview the real loading path at localhost:8000
 ```

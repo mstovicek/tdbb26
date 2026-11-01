@@ -4,7 +4,7 @@ No dependencies: Python's `unittest` and Node's built-in test runner.
 
 ```
 python3 -m unittest discover -s tests/python     # validate.py, summary.py, embed.py, the real data, the cross-check
-node --test tests/js/                            # the page, run against a stand-in for the browser
+node --test tests/js/*.test.mjs                            # the page, run against a stand-in for the browser
 ```
 
 - `tests/python/` tests the scripts as subprocesses, the way you run them. `test_real_data.py` validates the real `data/`.

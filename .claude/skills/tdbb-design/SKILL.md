@@ -88,7 +88,7 @@ Rank circles echo the Tour screen from the original TDP app design. Keep tables 
 
 ## Testing a change
 
-0. Run the tests: `node --test tests/js/` (page) and `python3 -m unittest discover -s tests/python` (scripts and the
+0. Run the tests: `node --test tests/js/*.test.mjs` (page) and `python3 -m unittest discover -s tests/python` (scripts and the
    Python/JS cross-check). A change that alters a number, a rank or a rule should come with a test. The page tests use
    `tests/js/harness.mjs`, which runs the real script against a browser stand-in; if the page starts using a new browser
    feature, add it to the stand-in or the page will quietly fall back (that is how `URLSearchParams` was once missed).
