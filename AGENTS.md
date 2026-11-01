@@ -10,7 +10,7 @@ The site shows winners, brewery profiles, tour ratings and people stats. It is p
 index.html                       the whole page (HTML, CSS, JS). Reads data/ when it loads
 data/manifest.json               seasons list and score weights
 data/people.json                 people (ids and names)
-data/breweries.json              breweries (name, address, highlight, status, brewsOnSite)
+data/breweries.json              breweries (name, address, district, highlight, status, brewsOnSite)
 data/seasons/<year>.json         one file per season, named by END year. All the ratings
 img/<breweryid>.jpg              optional own photos, about 400 px square (none yet)
 .claude/skills/tdbb-ingest/      skill: add or correct ratings (data only), with validate.py and summary.py
