@@ -10,9 +10,9 @@ The site shows winners, brewery profiles, tour ratings and people stats. It is p
 index.html                       the whole page (HTML, CSS, JS). Reads data/ when it loads
 data/manifest.json               seasons list and score weights
 data/people.json                 people (ids and names)
-data/breweries.json              breweries (name, address, highlight, status)
+data/breweries.json              breweries (name, address, highlight, status, brewsOnSite)
 data/seasons/<year>.json         one file per season, named by END year. All the ratings
-img/<breweryid>.jpg              optional photos, about 400 px square
+img/<breweryid>.jpg              optional own photos, about 400 px square (none yet)
 .claude/skills/tdbb-ingest/      skill: add or correct ratings (data only), with validate.py and summary.py
 .claude/skills/tdbb-design/      skill: change the page (index.html only), with embed.py
 ```
@@ -29,6 +29,9 @@ img/<breweryid>.jpg              optional photos, about 400 px square
 - Store raw ratings only. Averages, ranks and totals are calculated by the page.
 - A season id is its end year (`2026` = 2025/2026). `manifest.json` lists seasons oldest first.
 - "All" averages every rating ever given, not season averages.
+- A brewery **qualifies** for the tour while it still brews on site (`brewsOnSite`, default true). Closed (`status`) is
+  separate. The page leaves closed and non-qualifying breweries off the all-time podium. Highlights stay timeless: no
+  scores, opening hours or closed/qualification wording.
 - `index.html` must keep its `<script id="tdbb-data">` block **empty**. Embedded test data goes only into
   `index-test.html`, which is git-ignored.
 - The site is public: first names and scores only, no reservation numbers, no private details.

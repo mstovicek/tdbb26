@@ -54,8 +54,11 @@ Scripts (Python 3, standard library only), run from the repo root:
   ("Pflegeberg" → Schankhalle Pfefferberg?).
 - **New person:** only after the user says so. Make the id (lowercase ASCII letters, one word), keep accents in
   `name`, add to `people.json`. If the id already exists for someone else, ask.
-- **New brewery:** ask for the address, write a one-sentence highlight without scores for the user to approve, set
-  `status` to `open`, add to `breweries.json`.
+- **New brewery:** ask for the address, write a one-sentence highlight for the user to approve (no scores, no opening hours, no closed or qualification wording), set
+  `status` to `open`, add to `breweries.json`. Ask whether it brews on site; if not, add `"brewsOnSite": false`.
+- **A brewery closes or stops brewing on site:** set `status` to `closed`, or `brewsOnSite` to `false`. These are separate:
+  a closed brewery that used to brew on site still qualifies. Do not edit its highlight to say so; the page shows badges.
+- **Photos:** only the group's own, or ones with permission, as `img/<breweryid>.jpg`. Never copy from Google Maps.
 
 ## Scores
 

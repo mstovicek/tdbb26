@@ -118,7 +118,9 @@ def check_breweries(b, path):
                 err('%s: brewery "%s" needs a non-empty "%s"' % (path, bid, k))
         if v.get('status') not in ('open', 'closed'):
             err('%s: brewery "%s" status must be "open" or "closed"' % (path, bid))
-        extra = set(v) - {'name', 'address', 'highlight', 'status'}
+        if 'brewsOnSite' in v and not isinstance(v['brewsOnSite'], bool):
+            err('%s: brewery "%s" brewsOnSite must be true or false' % (path, bid))
+        extra = set(v) - {'name', 'address', 'highlight', 'status', 'brewsOnSite'}
         if extra:
             err('%s: brewery "%s" has unknown fields %s' % (path, bid, sorted(extra)))
         if isinstance(v.get('name'), str):

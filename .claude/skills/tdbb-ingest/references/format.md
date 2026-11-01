@@ -51,7 +51,13 @@ Only `name`. There are no aliases: one person, one name.
 ```
 
 - `status` is `open` or `closed`. Closed breweries stay in every ranking and in All; the page only tags them.
-- `highlight` is one sentence for the Breweries page. Do not put scores in new highlights (they go stale).
+- `brewsOnSite` is optional and defaults to `true`. Set it to `false` when a brewery stopped brewing on site.
+  A brewery **qualifies** for the tour when `brewsOnSite` is not `false`; `status` does not affect this, so a closed
+  brewery that used to brew on site still qualifies. Breweries that do not qualify, and closed ones, stay in every season
+  ranking; the page leaves them out of the all-time Winners podium and the Biggest movers list.
+- `highlight` is one sentence for the Breweries page. Keep it to lasting facts about the place. Do not put scores,
+  opening hours, or anything the other fields already express (closed, no longer qualifies) in it: those go stale, and
+  the page shows `status` and `brewsOnSite` as badges by itself.
 - Photos are not stored in the data. The page looks for `img/<breweryid>.jpg` and falls back to initials.
 
 ## seasons/<year>.json
