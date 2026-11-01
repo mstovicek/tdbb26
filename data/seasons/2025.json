@@ -1,0 +1,772 @@
+{
+ "version": 1,
+ "id": "2025",
+ "label": "2024/2025",
+ "stages": [
+  {
+   "date": "2024-05-18",
+   "stops": [
+    {
+     "brewery": "hopsandbarley",
+     "ratings": {
+      "milan": {
+       "beer": 5,
+       "service": 4,
+       "gl": 5
+      },
+      "ines": {
+       "beer": 5,
+       "service": 3,
+       "gl": 4
+      },
+      "ola": {
+       "beer": 4,
+       "service": 3,
+       "gl": 4
+      },
+      "jakub": {
+       "beer": 5,
+       "service": 5,
+       "gl": 5
+      },
+      "zbynda": {
+       "beer": 4,
+       "service": 4,
+       "gl": 4
+      },
+      "pepa": {
+       "beer": 5,
+       "service": 4,
+       "gl": 3
+      },
+      "honza": {
+       "beer": 4,
+       "service": 5,
+       "gl": 5
+      }
+     }
+    },
+    {
+     "brewery": "heidenpeters",
+     "ratings": {
+      "milan": {
+       "beer": 5,
+       "service": 4,
+       "gl": 4
+      },
+      "ines": {
+       "beer": 3,
+       "service": 3,
+       "gl": 5
+      },
+      "jakub": {
+       "beer": 5,
+       "service": 5,
+       "gl": 5
+      },
+      "wizard": {
+       "beer": 4,
+       "service": 4,
+       "gl": 4
+      },
+      "zbynda": {
+       "beer": 3,
+       "service": 3,
+       "gl": 4
+      },
+      "pepa": {
+       "beer": 5,
+       "service": 5,
+       "gl": 4
+      },
+      "honza": {
+       "beer": 3,
+       "service": 4,
+       "gl": 5
+      }
+     }
+    },
+    {
+     "brewery": "brlo",
+     "ratings": {
+      "milan": {
+       "beer": 4,
+       "service": 3,
+       "gl": 4
+      },
+      "ines": {
+       "beer": 5,
+       "service": 5,
+       "gl": 4
+      },
+      "gokul": {
+       "beer": 3,
+       "service": 5,
+       "gl": 4
+      },
+      "jakub": {
+       "beer": 4,
+       "service": 4,
+       "gl": 5
+      },
+      "wizard": {
+       "beer": 4,
+       "service": 4,
+       "gl": 4
+      },
+      "zbynda": {
+       "beer": 4,
+       "service": 4,
+       "gl": 5
+      },
+      "pepa": {
+       "beer": 4,
+       "service": 4,
+       "gl": 4
+      },
+      "honza": {
+       "beer": 3,
+       "service": 4,
+       "gl": 5
+      }
+     }
+    },
+    {
+     "brewery": "circus",
+     "ratings": {
+      "milan": {
+       "beer": 3,
+       "service": 4,
+       "gl": 3
+      },
+      "ines": {
+       "beer": 3,
+       "service": 4,
+       "gl": 5
+      },
+      "gokul": {
+       "beer": 4,
+       "service": 5,
+       "gl": 4
+      },
+      "ola": {
+       "beer": 2,
+       "service": 2,
+       "gl": 3
+      },
+      "jule": {
+       "beer": 5,
+       "service": 5,
+       "gl": 4
+      },
+      "joao": {
+       "beer": 5,
+       "service": 4,
+       "gl": 3
+      },
+      "jakub": {
+       "beer": 3,
+       "service": 4,
+       "gl": 4
+      },
+      "wizard": {
+       "beer": 4,
+       "service": 4,
+       "gl": 5
+      },
+      "zbynda": {
+       "beer": 4,
+       "service": 3,
+       "gl": 5
+      },
+      "pepa": {
+       "beer": 5,
+       "service": 4,
+       "gl": 5
+      },
+      "honza": {
+       "beer": 4,
+       "service": 4,
+       "gl": 3
+      }
+     }
+    },
+    {
+     "brewery": "lemkehackeschermarkt",
+     "ratings": {
+      "milan": {
+       "beer": 4,
+       "service": 3,
+       "gl": 3
+      },
+      "ines": {
+       "beer": 5,
+       "service": 4,
+       "gl": 3
+      },
+      "gokul": {
+       "beer": 4,
+       "service": 4,
+       "gl": 4
+      },
+      "jule": {
+       "beer": 5,
+       "service": 5,
+       "gl": 3
+      },
+      "joao": {
+       "beer": 3,
+       "service": 4,
+       "gl": 2
+      },
+      "jakub": {
+       "beer": 4,
+       "service": 5,
+       "gl": 4
+      },
+      "wizard": {
+       "beer": 5,
+       "service": 4,
+       "gl": 5
+      },
+      "zbynda": {
+       "beer": 4,
+       "service": 5,
+       "gl": 4
+      },
+      "pepa": {
+       "beer": 5,
+       "service": 4,
+       "gl": 4
+      },
+      "honza": {
+       "beer": 3,
+       "service": 3,
+       "gl": 3
+      }
+     }
+    }
+   ]
+  },
+  {
+   "date": "2024-09-28",
+   "stops": [
+    {
+     "brewery": "strassenbrau",
+     "ratings": {
+      "milan": {
+       "beer": 5,
+       "service": 4,
+       "gl": 3
+      },
+      "ines": {
+       "beer": 5,
+       "service": 5,
+       "gl": 4
+      }
+     }
+    },
+    {
+     "brewery": "berlinerberg",
+     "ratings": {
+      "milan": {
+       "beer": 4,
+       "service": 3,
+       "gl": 5
+      },
+      "ines": {
+       "beer": 5,
+       "service": 3,
+       "gl": 5
+      },
+      "gokul": {
+       "beer": 4,
+       "service": 4,
+       "gl": 5
+      },
+      "ola": {
+       "beer": 4,
+       "service": 4,
+       "gl": 4
+      }
+     }
+    },
+    {
+     "brewery": "brauhaussuedstern",
+     "ratings": {
+      "milan": {
+       "beer": 3,
+       "service": 2,
+       "gl": 4
+      },
+      "ines": {
+       "beer": 4,
+       "service": 3,
+       "gl": 4
+      },
+      "gokul": {
+       "beer": 3,
+       "service": 3,
+       "gl": 4
+      },
+      "ola": {
+       "beer": 1,
+       "service": 3,
+       "gl": 2
+      },
+      "dani": {
+       "beer": 2,
+       "service": 1,
+       "gl": 3
+      }
+     }
+    },
+    {
+     "brewery": "schoppebrau",
+     "ratings": {
+      "milan": {
+       "beer": 4,
+       "service": 3,
+       "gl": 5
+      },
+      "ines": {
+       "beer": 3,
+       "service": 3,
+       "gl": 4
+      },
+      "gokul": {
+       "beer": 4,
+       "service": 3,
+       "gl": 5
+      },
+      "dani": {
+       "beer": 4,
+       "service": 4,
+       "gl": 4
+      }
+     }
+    }
+   ]
+  },
+  {
+   "date": "2024-11-30",
+   "stops": [
+    {
+     "brewery": "brauhausspandau",
+     "ratings": {
+      "milan": {
+       "beer": 4,
+       "service": 2,
+       "gl": 4
+      },
+      "ines": {
+       "beer": 3,
+       "service": 2,
+       "gl": 3
+      },
+      "diogo": {
+       "beer": 3,
+       "service": 2,
+       "gl": 4
+      },
+      "tim": {
+       "beer": 4,
+       "service": 2,
+       "gl": 4
+      }
+     }
+    },
+    {
+     "brewery": "schneeeulesalon",
+     "ratings": {
+      "milan": {
+       "beer": 3,
+       "service": 5,
+       "gl": 2
+      },
+      "ines": {
+       "beer": 3,
+       "service": 5,
+       "gl": 4
+      },
+      "diogo": {
+       "beer": 4,
+       "service": 4,
+       "gl": 4
+      },
+      "tim": {
+       "beer": 3,
+       "service": 5,
+       "gl": 4
+      },
+      "martin": {
+       "beer": 4,
+       "service": 5,
+       "gl": 3
+      },
+      "elton": {
+       "beer": 4,
+       "service": 4,
+       "gl": 4
+      }
+     }
+    },
+    {
+     "brewery": "vagabundkesselhaus",
+     "ratings": {
+      "milan": {
+       "beer": 5,
+       "service": 4,
+       "gl": 3
+      },
+      "ines": {
+       "beer": 2,
+       "service": 4,
+       "gl": 4
+      },
+      "diogo": {
+       "beer": 4,
+       "service": 4,
+       "gl": 3
+      },
+      "tim": {
+       "beer": 4,
+       "service": 4,
+       "gl": 3
+      }
+     }
+    },
+    {
+     "brewery": "eschenbrau",
+     "ratings": {
+      "milan": {
+       "beer": 4,
+       "service": 4,
+       "gl": 3
+      },
+      "ines": {
+       "beer": 3,
+       "service": 2,
+       "gl": 2
+      },
+      "diogo": {
+       "beer": 4,
+       "service": 4,
+       "gl": 3
+      },
+      "tim": {
+       "beer": 3,
+       "service": 3,
+       "gl": 1
+      },
+      "martin": {
+       "beer": 3,
+       "service": 4,
+       "gl": 3
+      },
+      "elton": {
+       "beer": 4,
+       "service": 5,
+       "gl": 3
+      }
+     }
+    }
+   ]
+  },
+  {
+   "date": "2025-04-12",
+   "stops": [
+    {
+     "brewery": "brewdogdogtap",
+     "ratings": {
+      "milan": {
+       "beer": 5,
+       "service": 4,
+       "gl": 4
+      },
+      "ines": {
+       "beer": 5,
+       "service": 4,
+       "gl": 5
+      },
+      "gokul": {
+       "beer": 5,
+       "service": 4,
+       "gl": 5
+      },
+      "ola": {
+       "beer": 5,
+       "service": 3,
+       "gl": 4
+      },
+      "diogo": {
+       "beer": 5,
+       "service": 3,
+       "gl": 4
+      }
+     }
+    },
+    {
+     "brewery": "lindenbraeu",
+     "ratings": {
+      "milan": {
+       "beer": 3,
+       "service": 2,
+       "gl": 1
+      },
+      "ines": {
+       "beer": 2,
+       "service": 2,
+       "gl": 2
+      },
+      "gokul": {
+       "beer": 2,
+       "service": 3,
+       "gl": 3
+      },
+      "diogo": {
+       "beer": 3,
+       "service": 2,
+       "gl": 2
+      },
+      "martin": {
+       "beer": 3,
+       "service": 3,
+       "gl": 2
+      },
+      "jule": {
+       "beer": 4,
+       "service": 3,
+       "gl": 2
+      }
+     }
+    },
+    {
+     "brewery": "marcusbrau",
+     "ratings": {
+      "milan": {
+       "beer": 3,
+       "service": 2,
+       "gl": 2
+      },
+      "ines": {
+       "beer": 2,
+       "service": 2,
+       "gl": 1
+      },
+      "gokul": {
+       "beer": 2,
+       "service": 2,
+       "gl": 2
+      },
+      "diogo": {
+       "beer": 3,
+       "service": 2,
+       "gl": 1
+      },
+      "martin": {
+       "beer": 4,
+       "service": 2,
+       "gl": 1
+      },
+      "jule": {
+       "beer": 2,
+       "service": 1,
+       "gl": 1
+      }
+     }
+    },
+    {
+     "brewery": "schankhallepfefferberg",
+     "ratings": {
+      "milan": {
+       "beer": 4,
+       "service": 3,
+       "gl": 4
+      },
+      "ines": {
+       "beer": 4,
+       "service": 3,
+       "gl": 3
+      },
+      "gokul": {
+       "beer": 3,
+       "service": 2,
+       "gl": 1
+      },
+      "diogo": {
+       "beer": 3,
+       "service": 3,
+       "gl": 3
+      },
+      "martin": {
+       "beer": 4,
+       "service": 3,
+       "gl": 3
+      },
+      "jule": {
+       "beer": 4,
+       "service": 3,
+       "gl": 3
+      }
+     }
+    }
+   ]
+  },
+  {
+   "date": "2025-07-12",
+   "stops": [
+    {
+     "brewery": "schlossplatzbrauereikoepenick",
+     "ratings": {
+      "milan": {
+       "beer": 5,
+       "service": 4,
+       "gl": 4
+      },
+      "ines": {
+       "beer": 5,
+       "service": 4,
+       "gl": 4
+      },
+      "gokul": {
+       "beer": 4,
+       "service": 5,
+       "gl": 3
+      },
+      "sridhar": {
+       "beer": 5,
+       "service": 4,
+       "gl": 3
+      }
+     }
+    },
+    {
+     "brewery": "schalander",
+     "ratings": {
+      "milan": {
+       "beer": 4,
+       "service": 3,
+       "gl": 3
+      },
+      "ines": {
+       "beer": 4,
+       "service": 4,
+       "gl": 5
+      },
+      "gokul": {
+       "beer": 3,
+       "service": 4,
+       "gl": 5
+      },
+      "ola": {
+       "beer": 3,
+       "service": 3,
+       "gl": 4
+      },
+      "tim": {
+       "beer": 4,
+       "service": 4,
+       "gl": 4
+      },
+      "jule": {
+       "beer": 5,
+       "service": 4,
+       "gl": 4
+      },
+      "sridhar": {
+       "beer": 3,
+       "service": 5,
+       "gl": 4
+      }
+     }
+    },
+    {
+     "brewery": "protokoll",
+     "ratings": {
+      "milan": {
+       "beer": 4,
+       "service": 4,
+       "gl": 3
+      },
+      "ines": {
+       "beer": 5,
+       "service": 4,
+       "gl": 3
+      },
+      "gokul": {
+       "beer": 4,
+       "service": 5,
+       "gl": 5
+      },
+      "ola": {
+       "beer": 4,
+       "service": 5,
+       "gl": 4
+      },
+      "tim": {
+       "beer": 4,
+       "service": 4,
+       "gl": 3
+      },
+      "jule": {
+       "beer": 5,
+       "service": 4,
+       "gl": 4
+      },
+      "sridhar": {
+       "beer": 5,
+       "service": 4,
+       "gl": 4
+      }
+     }
+    },
+    {
+     "brewery": "georgbrau",
+     "ratings": {
+      "milan": {
+       "beer": 4,
+       "service": 3,
+       "gl": 2
+      },
+      "ines": {
+       "beer": 3,
+       "service": 4,
+       "gl": 3
+      },
+      "gokul": {
+       "beer": 3,
+       "service": 4,
+       "gl": 4
+      },
+      "ola": {
+       "beer": 2,
+       "service": 3,
+       "gl": 3
+      },
+      "tim": {
+       "beer": 3,
+       "service": 4,
+       "gl": 3
+      },
+      "dani": {
+       "beer": 3,
+       "service": 4,
+       "gl": 4
+      },
+      "jule": {
+       "beer": 3,
+       "service": 4,
+       "gl": 4
+      },
+      "sridhar": {
+       "beer": 3,
+       "service": 4,
+       "gl": 4
+      }
+     }
+    }
+   ]
+  }
+ ]
+}
