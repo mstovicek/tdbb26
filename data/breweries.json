@@ -108,6 +108,30 @@
    "address": "Schöneberger Str. 16, 10963 Berlin",
    "highlight": "Brewhouse with food, open from noon, and one of the better beers of the season (4.00); book ahead for groups.",
    "status": "open"
+  },
+  "brewdogdogtap": {
+   "name": "BrewDog DogTap",
+   "address": "Im Marienpark 23, 12107 Berlin",
+   "highlight": "A large taproom and beer garden on the former Mariendorf gasworks site.",
+   "status": "closed"
+  },
+  "schlossplatzbrauereikoepenick": {
+   "name": "Schlossplatzbrauerei Köpenick",
+   "address": "Alt-Köpenick 4, 12555 Berlin",
+   "highlight": "A microbrewery and restaurant beside Köpenick Palace, serving house-brewed beer.",
+   "status": "open"
+  },
+  "schneeeulesalon": {
+   "name": "Schneeeule Salon",
+   "address": "Ofener Straße 1, 13349 Berlin",
+   "highlight": "A taproom dedicated to traditional Berliner Weisse.",
+   "status": "closed"
+  },
+  "lindenbraeu": {
+   "name": "LindenBräu",
+   "address": "Bellevuestraße 3–5, 10785 Berlin",
+   "highlight": "A brewpub at Potsdamer Platz serving house-brewed beer and German cuisine.",
+   "status": "open"
   }
  }
 }
