@@ -303,7 +303,7 @@ let W=[.5,.25,.25];          // beer, service, genius loci (set from manifest.js
 const MIN=3;                      // fewer ratings than this = small sample
 const wsum=v=>W[0]*v[0]+W[1]*v[1]+W[2]*v[2];
 const mean=a=>a.reduce((x,y)=>x+y,0)/a.length;
-const f2=x=>x.toFixed(2);
+const f2=x=>(x<0?'-':'')+(Math.round(Math.abs(x)*100+1e-9)/100).toFixed(2);   // half up: 3.675 shows as 3.68
 const sgn=x=>Math.abs(x)<0.005?'0.00':(x>0?'+':'\u2212')+Math.abs(x).toFixed(2);
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const plural=(n,w)=>n+' '+w+(n===1?'':'s');
