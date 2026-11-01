@@ -44,5 +44,6 @@ img/<breweryid>.jpg              optional own photos, about 400 px square (none 
 python3 .claude/skills/tdbb-ingest/scripts/validate.py data      # check all data (and that index.html has no test data)
 python3 .claude/skills/tdbb-ingest/scripts/summary.py data       # ranking of the latest season
 python3 .claude/skills/tdbb-design/scripts/embed.py              # writes index-test.html with data embedded
+python3 .claude/skills/tdbb-design/scripts/embed.py --test-agenda  # same, plus an invented upcoming stage (test copy only)
 python3 -m http.server 8000                                      # preview the real loading path at localhost:8000
 ```

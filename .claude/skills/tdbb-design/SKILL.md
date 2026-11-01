@@ -26,17 +26,24 @@ One file, no libraries, no build step. Inside the `<script>`:
    trends work in every view.
 3. **Calculations** (`computeBrews`, `computePeople`). All averages, ranks, deviations and favourites are worked out
    here from the ratings. Weights come from `manifest.json`. Nothing derived is ever stored in the data.
-   Trends are derived too: `sparkline` and `trendDelta` (last season against the one before it) and `movers`
+   Trends are derived too: `sparkline` (last season against the one before it) and `movers`
    (biggest improvements of the selected season, or the latest on All, against each brewery's previous rated season).
-4. **Views.** `renderWinners` (podium of the three best breweries, **Biggest movers**, top five regulars),
-   `renderProfiles` (Breweries: sort Top rated, Trend, A to Z; sparkline per brewery rated in two or more seasons;
+4. **Views.** `renderWinners` (a **Next stage** banner when the latest season has a stage today or later, linking to the Agenda;
+   podium of the three best breweries, **Biggest movers**, top five regulars),
+   `renderProfiles` (Breweries: sort Top rated or A to Z; district shown before the address; a sparkline per brewery rated in
+   two or more seasons, **only when Season = All**;
    badges Closed and Doesn't qualify), `renderTour` → `renderBreweries` (Ratings) and
-   `renderToday`, `renderPeople` → Scores, Favourites, Attendance, Consistency.
-5. **Shell.** `render()`, hash routing (`#winners`, `#breweries`, `#tour-ratings`, `#tour-today`,
+   `renderAgenda` (placeholders when nothing is planned), `renderPeople` → Attendance, Scores, Favourites, Consistency.
+5. **Shell.** `render()`, hash routing (`#winners`, `#breweries`, `#tour-ratings`, `#tour-agenda` (the old `#tour-today` still works),
    `#people-<tab>`), one delegated click handler, the year selector in the header. The selected season is kept in the
    query string (`?year=2025` or `?year=all`, set with `history.replaceState`) so a refresh keeps it; the view stays in the hash.
 
-Header: logo, rated count, season selector. Bottom menu: Winners, Breweries, Tour, People.
+Header: logo, rated count, season selector. The logo is inline SVG text in Bungee (loaded for those four letters only; the font has one weight, so never set
+font-weight on it): dark faces with a thin muted-gold outline and inline, and a solid gold extrusion falling down-left,
+built from layered `<use>` copies and a clip path. It follows the TDP logo screenshot.
+The Winners page has no trophy icon, to save space.
+
+Bottom menu: Winners, Breweries, Tour, People.
 
 ## Qualification
 
@@ -58,7 +65,8 @@ or rename one as part of a design task. If the format must change, treat it as i
   the real files. Test builds go to `index-test.html` (git-ignored).
 - Never edit anything under `data/`. Never put sample or fake ratings in the repo.
 - Keep working: empty states (no ratings, no seasons), one season and many seasons, All and a single season,
-  long brewery names, people with few ratings, a closed brewery, a stage without times.
+  long brewery names, people with few ratings, a closed brewery, a stage without times, no upcoming stage (Agenda
+  placeholders, no banner), a planned stage with a date but no stops (empty stages are not listed under Ratings).
 - Do not hardcode brewery names, ids, seasons or scores in the page, and keep state words (closed, no longer qualifies)
   out of data text: the page shows badges from the fields.
 - The favicon is an inline SVG data URI in `<head>` (gold beer mug on charcoal), so it needs no extra file.
@@ -73,7 +81,8 @@ or rename one as part of a design task. If the format must change, treat it as i
 
 Dark charcoal `#353433` background, raised `#403f3d`, lines `#504e4b`, text `#F5EFE4`, muted `#ABA69C`, gold `#E7C566`
 (highlights, best values), lilac `#BBA9FF` (lowest values), purple `#7456E0` (rank circles, stop numbers), cream `#FBEBD3`
-(active chips, primary buttons, dark ink `#2B2A29` on it). The TDBB wordmark is heavy gold type with a dark extruded shadow.
+(active chips, primary buttons, dark ink `#2B2A29` on it). The TDBB wordmark has dark faces with thin muted-gold lines and a solid gold extrusion down-left, after the TDP logo.
+The Next stage banner is a gold-outlined card on a faint gold tint; placeholder stops use dashed circles and muted text.
 Rank circles echo the Tour screen from the original TDP app design. Keep tables simple and sortable, one screenful per section.
 
 ## Testing a change
@@ -84,4 +93,8 @@ Rank circles echo the Tour screen from the original TDP app design. Keep tables 
    `python3 .claude/skills/tdbb-design/scripts/embed.py` writes `index-test.html` and refuses to overwrite `index.html`.
 4. Compare numbers before and after a redesign: rankings, people tables and the Winners podium must not change
    unless the change was meant to alter them.
-5. Before handing over, confirm `index.html` still has an empty `tdbb-data` block (the validator checks this).
+5. For the front-page banner and an Agenda with a plan, use `embed.py --test-agenda`: it adds an invented stage 14 days
+   ahead to the embedded copy only (never to `data/`).
+6. Look at it in a real browser at 390 px wide, not only through scripts: that is how a faked bold font and clogged
+   letters in the logo were caught. Zoom in on details such as the logo.
+7. Before handing over, confirm `index.html` still has an empty `tdbb-data` block (the validator checks this).
